@@ -331,17 +331,19 @@
   ════════════════════════════════ -->
   <div class="pane on" id="pane-port">
 
-    <!-- Budget hero -->
+    <!-- Unified header bar: budget input + live portfolio metrics -->
     <div class="budget-hero">
-      <div>
-        <div class="budget-hero-lbl">My Monthly Investment Budget</div>
+
+      <!-- Budget input -->
+      <div style="flex-shrink:0">
+        <div class="budget-hero-lbl">Monthly Budget</div>
         <div class="budget-input-wrap">
           <span class="budget-prefix">$</span>
           <input type="number" class="budget-input" id="budget" value="1000" min="1" step="50"
-            oninput="onBudgetChange()" placeholder="1,000" />
+            oninput="onBudgetChange()" placeholder="1,000" style="width:160px" />
         </div>
         <div class="budget-tag">per month · <span id="budgetAnnual">$12,000 per year</span></div>
-        <div style="margin-top:14px">
+        <div style="margin-top:12px;width:200px">
           <div class="abar"><div class="abar-fill" id="allocFill" style="width:0%"></div></div>
           <div class="abar-lbl">
             <span>Allocation used</span>
@@ -350,10 +352,33 @@
         </div>
       </div>
 
-      <div class="budget-breakdown" id="budgetBreakdown">
-        <div class="budget-breakdown-title">Monthly breakdown</div>
-        <div class="bd-empty-tip">Add tickers below to see how your budget splits →</div>
+      <!-- Divider -->
+      <div style="width:1px;background:rgba(255,255,255,.15);align-self:stretch;flex-shrink:0"></div>
+
+      <!-- Live portfolio metrics (replaces the separate strip below) -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;flex:1;min-width:0">
+        <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:14px 16px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);font-weight:700;margin-bottom:8px">Blended Yield</div>
+          <div style="font-size:1.5rem;font-weight:700;font-family:var(--mono);color:var(--alit2);letter-spacing:-.04em" id="sYld">—</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px" id="sYldWarn"></div>
+        </div>
+        <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:14px 16px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);font-weight:700;margin-bottom:8px">Blended DGR</div>
+          <div style="font-size:1.5rem;font-weight:700;font-family:var(--mono);color:#fff;letter-spacing:-.04em" id="sDGR">—</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px" id="sDGRWarn"></div>
+        </div>
+        <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:14px 16px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);font-weight:700;margin-bottom:8px">Annual Investment</div>
+          <div style="font-size:1.5rem;font-weight:700;font-family:var(--mono);color:#fff;letter-spacing:-.04em" id="sMo">—</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px" id="sMoSub">per year</div>
+        </div>
+        <div style="background:rgba(255,255,255,.1);border-radius:10px;padding:14px 16px">
+          <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.55);font-weight:700;margin-bottom:8px">Year-1 Est. Income</div>
+          <div style="font-size:1.5rem;font-weight:700;font-family:var(--mono);color:var(--alit2);letter-spacing:-.04em" id="sY1">—</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px">at current yield</div>
+        </div>
       </div>
+
     </div>
 
     <!-- Add ticker form -->
@@ -413,33 +438,7 @@
       </div>
     </div>
 
-    <!-- Portfolio summary -->
-    <div class="summary-strip" id="summaryStrip" style="display:none">
-      <div class="sc">
-        <div class="sc-lbl">Blended Yield</div>
-        <div class="sc-val pos" id="sYld">—</div>
-        <div class="sc-sub">Weighted by allocation</div>
-        <div class="sc-warn" id="sYldWarn"></div>
-      </div>
-      <div class="sc">
-        <div class="sc-lbl">Blended DGR</div>
-        <div class="sc-val" style="color:var(--accent)" id="sDGR">—</div>
-        <div class="sc-sub">Weighted by allocation</div>
-        <div class="sc-warn" id="sDGRWarn"></div>
-      </div>
-      <div class="sc">
-        <div class="sc-lbl">Monthly Investment</div>
-        <div class="sc-val" style="color:var(--blue)" id="sMo">—</div>
-        <div class="sc-sub" id="sMoSub">per month</div>
-      </div>
-      <div class="sc">
-        <div class="sc-lbl">Year-1 Est. Income</div>
-        <div class="sc-val pos" id="sY1">—</div>
-        <div class="sc-sub">at current yield</div>
-      </div>
-    </div>
-
-    <div style="display:flex;justify-content:flex-end">
+    <div style="display:flex;justify-content:flex-end;margin-top:4px">
       <button class="btn bp2" style="font-size:1rem;padding:13px 32px" onclick="goToProj()">
         Build My Retirement Plan →
       </button>
@@ -791,7 +790,6 @@ function renderTbl() {
   if (!POS.length) {
     tb.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🌱</div><p>Add a ticker above, or click <strong>Demo</strong> to load a sample portfolio.</p></div></td></tr>`;
     updateAllocBar();
-    renderBudgetBreakdown();
     return;
   }
 
@@ -839,7 +837,6 @@ function renderTbl() {
   }).join('');
 
   updateAllocBar();
-  renderBudgetBreakdown();
 }
 
 function updateAllocBar() {
@@ -848,23 +845,6 @@ function updateAllocBar() {
   const sp = document.getElementById('allocPct');
   sp.textContent = total.toFixed(1) + '%';
   sp.className = 'av ' + (total > 101 ? 'err' : total > 99.5 ? 'ok' : 'warn');
-}
-
-function renderBudgetBreakdown() {
-  const budget = getBudget();
-  const el = document.getElementById('budgetBreakdown');
-  if (!POS.length || !budget) {
-    el.innerHTML = '<div class="budget-breakdown-title">Monthly breakdown</div><div class="bd-empty-tip">Add tickers below to see how your budget splits →</div>';
-    return;
-  }
-  const rows = POS.map(p => {
-    const moAmt = budget * (p.alloc || 0) / 100;
-    return `<div class="bd-row">
-      <span><span class="tkb-w">${p.ticker}</span></span>
-      <span><span class="amt">$${fn(moAmt)}</span><span class="pct">${(p.alloc || 0).toFixed(1)}%</span></span>
-    </div>`;
-  }).join('');
-  el.innerHTML = '<div class="budget-breakdown-title">Monthly breakdown</div>' + rows;
 }
 
 /* ═══════════════════════════════════════
@@ -876,11 +856,6 @@ function getEffYld(p) {
 }
 
 function updateBlend() {
-  if (!POS.length) {
-    document.getElementById('summaryStrip').style.display = 'none';
-    return;
-  }
-
   let totAlloc = 0, wYld = 0, yldA = 0, wDGR = 0, dgrA = 0;
   const missingYld = [], missingDGR = [];
 
@@ -903,14 +878,12 @@ function updateBlend() {
 
   setText('sYld',  bYld != null ? fn(bYld * 100, 2) + '%' : '—');
   setText('sDGR',  bDGR != null ? '+' + fn(bDGR, 1) + '% / yr' : '—');
-  setText('sMo',   budget > 0   ? '$' + f0(budget) : '—');
-  setText('sMoSub', budget > 0  ? '$' + f0(budget * 12) + ' per year' : 'per month');
+  setText('sMo',   budget > 0   ? '$' + f0(budget * 12) : '—');
+  setText('sMoSub', budget > 0  ? '($' + f0(budget) + ' / month)' : 'per year');
   setText('sY1',   yr1Income != null ? '~$' + f0(yr1Income) : '—');
-
   setText('sYldWarn', missingYld.length ? '⚠ ' + missingYld.join(', ') + ' missing yield' : '');
   setText('sDGRWarn', missingDGR.length ? '⚠ ' + missingDGR.join(', ') + ' missing DGR'  : '');
-
-  document.getElementById('summaryStrip').style.display = POS.length ? 'grid' : 'none';
+  // No separate summaryStrip to show/hide — metrics are always in the hero
 }
 
 /* ═══════════════════════════════════════
