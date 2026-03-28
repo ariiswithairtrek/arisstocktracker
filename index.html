@@ -287,17 +287,31 @@
       </div>
 
       <!-- Right: metrics + ref -->
-      <div style="width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:14px">
-        <div class="card">
-          <div class="ctitle" style="margin-bottom:4px">Portfolio Metrics</div>
-          <div class="csub">Weighted across all positions.</div>
-          <div class="blend-grid">
-            <div class="bc"><div class="bc-val pos" id="bYld">—</div><div class="bc-lbl">Blended Yield</div></div>
-            <div class="bc"><div class="bc-val" style="color:var(--accent)" id="bDGR">—</div><div class="bc-lbl">Blended DGR</div></div>
-            <div class="bc"><div class="bc-val" style="color:var(--blue)" id="bMktV">—</div><div class="bc-lbl">Total Value</div></div>
-            <div class="bc"><div class="bc-val pos" id="bAnnI">—</div><div class="bc-lbl">Annual Income</div></div>
+      <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="padding:18px 16px">
+          <div class="ctitle" style="margin-bottom:2px">Portfolio Metrics</div>
+          <div class="csub" style="margin-bottom:14px">Weighted across all positions.</div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
+            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
+              <div class="bc-lbl" style="font-size:.68rem">Blended Yield</div>
+              <div class="bc-val pos" id="bYld" style="font-size:1.3rem">—</div>
+            </div>
+            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
+              <div class="bc-lbl" style="font-size:.68rem">Blended DGR</div>
+              <div class="bc-val" style="color:var(--accent);font-size:1.3rem" id="bDGR">—</div>
+            </div>
+            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
+              <div class="bc-lbl" style="font-size:.68rem">Total Value</div>
+              <div class="bc-val" style="color:var(--blue);font-size:1.3rem" id="bMktV">—</div>
+            </div>
+            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
+              <div class="bc-lbl" style="font-size:.68rem">Annual Income</div>
+              <div class="bc-val pos" style="font-size:1.3rem" id="bAnnI">—</div>
+            </div>
           </div>
-          <button class="btn bp" style="width:100%;justify-content:center;font-size:.9rem;padding:11px" onclick="goToProj()">
+
+          <button class="btn bp" style="width:100%;justify-content:center;font-size:.88rem;padding:11px" onclick="goToProj()">
             Project My Retirement →
           </button>
         </div>
@@ -562,11 +576,12 @@ async function fetchTicker(tk) {
     change:          q.d   || null,
     changesPercentage: q.dp || null,
     name:            p.name || tk,
-    // TTM yield from Finnhub metrics (already annualised decimal)
-    divYieldTTM:     m?.metric?.currentDividendYieldTTM ?? null,
-    // Estimate annual div per share = price × TTM yield
-    annualDiv:       (q.c && m?.metric?.currentDividendYieldTTM)
-                       ? q.c * m.metric.currentDividendYieldTTM : null,
+    // TTM yield from Finnhub metrics — returned as PERCENTAGE (e.g. 3.5 = 3.5%), divide by 100
+    divYieldTTM:     m?.metric?.currentDividendYieldTTM != null
+                       ? m.metric.currentDividendYieldTTM / 100 : null,
+    // Annual div per share = price × TTM yield (now a proper decimal)
+    annualDiv:       (q.c && m?.metric?.currentDividendYieldTTM != null)
+                       ? q.c * (m.metric.currentDividendYieldTTM / 100) : null,
   };
 }
 
