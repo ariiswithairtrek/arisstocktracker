@@ -185,11 +185,11 @@
 <div class="overlay" id="ovl">
   <div class="modal">
     <h2>Connect Live Prices</h2>
-    <p>Prices come from <strong>Financial Modeling Prep (FMP)</strong> — free tier, no credit card.<br><br>
-    1. Visit <a href="https://financialmodelingprep.com/developer/docs" target="_blank">financialmodelingprep.com</a> and sign up.<br>
-    2. Copy your API key and paste it below.<br><br>
-    <em>Your portfolio data stays in your browser only.</em></p>
-    <div class="fld"><label>FMP API Key</label><input type="text" id="apiIn" placeholder="Paste your key here…" /></div>
+    <p>Prices come from <strong>Finnhub</strong> — genuinely free, 60 calls/min, no credit card needed.<br><br>
+    1. Go to <a href="https://finnhub.io" target="_blank">finnhub.io</a> → click <strong>Get free API key</strong> → sign up with email.<br>
+    2. Your key appears instantly on the dashboard. Copy and paste it below.<br><br>
+    ✅ <em>Works today — no legacy endpoint issues. Your portfolio stays in your browser only.</em></p>
+    <div class="fld"><label>Finnhub API Key</label><input type="text" id="apiIn" placeholder="Paste your Finnhub key here…" /></div>
     <div class="modal-ft">
       <button class="btn bo" onclick="closeModal()">Cancel</button>
       <button class="btn bp" onclick="saveKey()">Save &amp; Connect</button>
@@ -217,6 +217,15 @@
     <button class="btn bw bsm" onclick="openModal()">⚙ API Key</button>
   </div>
 </nav>
+
+<!-- Error banner (replaces alert popups) -->
+<div id="errBanner" style="display:none;background:#fee2e2;border-bottom:1.5px solid #fca5a5;padding:10px 24px;font-size:.875rem;color:#991b1b;display:none;align-items:center;justify-content:space-between;gap:12px;">
+  <span>⚠️ <strong>Could not fetch prices.</strong> <span id="errMsg"></span></span>
+  <span style="display:flex;gap:10px;flex-shrink:0;">
+    <button onclick="openModal()" style="background:#991b1b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Fix Finnhub Key</button>
+    <button onclick="hideErr()" style="background:transparent;border:none;color:#991b1b;font-size:1.1rem;cursor:pointer;line-height:1;">✕</button>
+  </span>
+</div>
 
 <div class="pg">
 
@@ -494,8 +503,8 @@ let pjChart = null, schedTimer = null;
 ══════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   renderTbl(); updateBlend(); runProj();
+  // Never auto-fetch on load — user clicks Refresh explicitly
   if (!KEY) openModal();
-  else if (POS.length) doRefresh();
 });
 
 /* ══════════════════════════════════
@@ -525,20 +534,56 @@ function saveKey() {
 }
 
 /* ══════════════════════════════════
-   API — /quote/ only (free, batched)
+   API — Finnhub (free, 60 calls/min)
+   Quote:   GET /api/v1/quote?symbol=X&token=KEY  → {c,d,dp,h,l,o,pc}
+   Profile: GET /api/v1/stock/profile2?symbol=X&token=KEY → {name,...}
+   Metrics: GET /api/v1/stock/metric?symbol=X&metric=all&token=KEY
+              → metric.currentDividendYieldTTM (decimal, e.g. 0.035)
+   One call per ticker (no batch endpoint), but 60/min is more than enough.
 ══════════════════════════════════ */
+const FH = 'https://finnhub.io/api/v1';
+
+async function fhGet(path) {
+  const r = await fetch(`${FH}${path}&token=${KEY}`);
+  if (!r.ok) throw new Error('Finnhub ' + r.status);
+  return r.json();
+}
+
+// Fetch quote + name + dividend yield for one ticker
+async function fetchTicker(tk) {
+  const [q, p, m] = await Promise.all([
+    fhGet(`/quote?symbol=${tk}`),
+    fhGet(`/stock/profile2?symbol=${tk}`),
+    fhGet(`/stock/metric?symbol=${tk}&metric=all`),
+  ]);
+  return {
+    symbol:          tk,
+    price:           q.c   || null,
+    change:          q.d   || null,
+    changesPercentage: q.dp || null,
+    name:            p.name || tk,
+    // TTM yield from Finnhub metrics (already annualised decimal)
+    divYieldTTM:     m?.metric?.currentDividendYieldTTM ?? null,
+    // Estimate annual div per share = price × TTM yield
+    annualDiv:       (q.c && m?.metric?.currentDividendYieldTTM)
+                       ? q.c * m.metric.currentDividendYieldTTM : null,
+  };
+}
+
+// Fetch all tickers in parallel (throttled to avoid burst)
 async function getQuotes(tks) {
   if (!tks.length) return {};
-  const r = await fetch(`https://financialmodelingprep.com/api/v3/quote/${tks.join(',')}?apikey=${KEY}`);
-  if (!r.ok) throw new Error('FMP ' + r.status);
-  const d = await r.json();
-  if (!Array.isArray(d)) throw new Error('Unexpected response');
+  // Small stagger so we don't fire 10 triples simultaneously
+  const results = await Promise.all(tks.map((tk, i) =>
+    new Promise(res => setTimeout(() => fetchTicker(tk).then(res).catch(() => res({symbol:tk})), i * 120))
+  ));
   const m = {};
-  d.forEach(q => m[q.symbol] = q);
+  results.forEach(r => { if (r.symbol) m[r.symbol] = r; });
   return m;
 }
-// Estimate TTM = lastDiv (most recent quarterly payout) × 4
-function ttm(q) { return (q && q.lastDiv > 0) ? q.lastDiv * 4 : null; }
+
+// TTM annual dividend per share from our enriched quote object
+function ttm(q) { return (q && q.annualDiv > 0) ? q.annualDiv : null; }
 
 /* ══════════════════════════════════
    REFRESH
@@ -552,7 +597,7 @@ async function doRefresh() {
     hideEl('ldMsg'); showEl('liveInd');
   } catch(e) {
     hideEl('ldMsg');
-    alert('Could not fetch prices.\n\n' + e.message);
+    showErr('Finnhub returned: ' + e.message + '. Check your API key at finnhub.io');
   } finally {
     hideEl('tblLd');
     renderTbl(); updateBlend();
@@ -577,7 +622,7 @@ function addPos() {
   renderTbl(); updateBlend();
   if (KEY) {
     showEl('tblLd');
-    getQuotes([tk]).then(q=>{Object.assign(QD,q);hideEl('tblLd');renderTbl();updateBlend();}).catch(()=>hideEl('tblLd'));
+    getQuotes([tk]).then(q=>{Object.assign(QD,q);hideEl('tblLd');renderTbl();updateBlend();}).catch(e=>{hideEl('tblLd');showErr('Finnhub: '+e.message);});
   }
 }
 function delPos(tk) {
@@ -885,6 +930,12 @@ function drawProjTable(rows, tgt){
 /* ══════════════════════════════════
    UTILS
 ══════════════════════════════════ */
+function showErr(msg){
+  const b=document.getElementById('errBanner');
+  document.getElementById('errMsg').textContent=msg;
+  b.style.display='flex';
+}
+function hideErr(){document.getElementById('errBanner').style.display='none';}
 function fn(n,d=2){return n==null||isNaN(n)?'—':n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
 function f0(n){return n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');}
 function fp(n){return n==null?'—':(n*100).toFixed(2)+'%';}
