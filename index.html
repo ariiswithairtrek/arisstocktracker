@@ -852,7 +852,7 @@ function updateAllocBar() {
 ═══════════════════════════════════════ */
 function getEffYld(p) {
   const q = QD[p.ticker] || {};
-  return p.manYld != null ? p.manYld : (q.apiYld || null);
+  return p.manYld != null ? p.manYld : (q.apiYld != null ? q.apiYld : null);
 }
 
 function updateBlend() {
@@ -918,22 +918,22 @@ function markFilled(inputId, chkId) {
 }
 
 function tryCalc() {
-  const pg  = document.getElementById('rPG').value.trim();
-  const tg  = document.getElementById('rTG').value.trim();
-  const yr  = document.getElementById('rYR').value.trim();
-  const btn  = document.getElementById('calcBtn');
-  const hint = document.getElementById('calcHint');
+  const pgVal = document.getElementById('rPG').value.trim();
+  const tgVal = document.getElementById('rTG').value.trim();
+  const yrVal = document.getElementById('rYR').value.trim();
+  const btn   = document.getElementById('calcBtn');
+  const hint  = document.getElementById('calcHint');
   const missing = [];
-  if (!pg) missing.push('Price Appreciation Rate');
-  if (!tg) missing.push('Income Target');
-  if (!yr) missing.push('Years');
+  if (!pgVal)                          missing.push('Price Appreciation Rate');
+  if (!tgVal || parseFloat(tgVal) <= 0) missing.push('Income Target (must be > 0)');
+  if (!yrVal || parseInt(yrVal) < 1)    missing.push('Years (must be ≥ 1)');
   if (missing.length) {
     btn.disabled = true;
     hint.textContent = 'Still needed: ' + missing.join(', ');
   } else {
     btn.disabled = false;
     hint.textContent = '';
-    runProj();  // auto-calculate as soon as all filled
+    runProj();
   }
 }
 
@@ -953,7 +953,8 @@ function runProj() {
   const YRS = parseInt(document.getElementById('rYR').value);
   const DR  = document.getElementById('rDR').checked;
 
-  if (!MO || isNaN(gP) || isNaN(TGT) || isNaN(YRS)) return;
+  // Validate all inputs
+  if (!MO || isNaN(gP) || isNaN(TGT) || isNaN(YRS) || TGT <= 0 || YRS < 1) return;
 
   // Blended portfolio stats
   let wYld = 0, yldA = 0, wDGR = 0, dgrA = 0;
@@ -962,22 +963,22 @@ function runProj() {
     if (yld != null)   { wYld += yld   * al; yldA += al; }
     if (p.dgr != null) { wDGR += p.dgr * al; dgrA += al; }
   });
-  const bYld = yldA > 0 ? wYld / yldA : 0.03;  // fallback 3%
-  const bDGR = dgrA > 0 ? wDGR / dgrA : 0.07;  // fallback 7%
+  // bYld: decimal (e.g. 0.035 = 3.5%)  |  bDGR: percent (e.g. 9.5 = 9.5%)
+  const bYld = yldA > 0 ? wYld / yldA : 0.03;   // fallback 3% decimal
+  const bDGR = dgrA > 0 ? wDGR / dgrA : 7;       // fallback 7% — kept in % form, divided /100 below
 
-  // Monthly compounding factors
-  const mPF = Math.pow(1 + gP,       1/12);  // price
-  const mDF = Math.pow(1 + bDGR/100, 1/12);  // DGR (bDGR in % terms from user)
+  // Monthly compounding factors — (1+annual_rate)^(1/12)
+  const mPF = Math.pow(1 + gP,        1/12);  // price growth per month
+  const mDF = Math.pow(1 + bDGR/100,  1/12);  // DGR per month (bDGR is in % e.g. 9.5)
 
-  // Normalize to $100 starting share price
-  const SP = 100;
+  // Start from $0 — no shares, no invested capital yet
+  const SP = 100;          // normalised starting share price
   let price    = SP;
-  let dps      = SP * bYld / 12;  // monthly div per share at start
+  let dps      = SP * bYld / 12;   // starting monthly div/share = price × annual_yield / 12
 
-  // Month 0: buy first batch with first contribution
-  let sharesND = MO / price;
-  let sharesDR = MO / price;
-  let cumInv   = MO;
+  let sharesND = 0;        // shares accumulate through contributions only
+  let sharesDR = 0;
+  let cumInv   = 0;        // total cash invested — incremented each month in loop
 
   const MONTHS = YRS * 12;
   const curY   = new Date().getFullYear();
@@ -985,39 +986,46 @@ function runProj() {
   let beYear   = null;
 
   for (let m = 1; m <= MONTHS; m++) {
-    // 1. Price & DPS compound
+    // Step 1: price and DPS compound for this month
     price *= mPF;
     dps   *= mDF;
 
-    // 2. Dividends (previous shares × current DPS)
+    // Step 2: dividends earned on shares held at START of month
     const divND = sharesND * dps;
     const divDR = sharesDR * dps;
 
-    // 3. DRIP reinvestment
+    // Step 3: DRIP — reinvest dividends into new shares at current price
     sharesDR += divDR / price;
 
-    // 4. Monthly contribution buys new shares
+    // Step 4: monthly contribution buys new shares at this month's price
     sharesND += MO / price;
     sharesDR += MO / price;
-    cumInv   += MO;
+    cumInv   += MO;   // exactly MO per month, no off-by-one
 
-    // 5. Snapshot at year end
+    // Step 5: snapshot at end of each year
     if (m % 12 === 0) {
       const yr    = m / 12;
       const valND = sharesND * price;
       const valDR = sharesDR * price;
+      // Projected forward annual income = current shares × current monthly DPS × 12
       const annND = sharesND * dps * 12;
       const annDR = sharesDR * dps * 12;
 
       if (!beYear && Math.max(annND, annDR) >= TGT) beYear = curY + yr;
 
-      rows.push({ year: curY + yr, price, dps, sharesND, sharesDR,
-                  moIncND: divND, moIncDR: divDR, annND, annDR,
-                  valND, valDR, contribYr: MO * 12, cumInv });
+      rows.push({
+        year: curY + yr, price, dps,
+        sharesND, sharesDR,
+        moIncND: divND, moIncDR: divDR,   // last monthly payout of the year
+        annND, annDR, valND, valDR,
+        contribYr: MO * 12,               // always exactly 12 monthly contributions per year
+        cumInv,
+      });
     }
   }
 
   // Show results
+  if (!rows.length) return;
   const last = rows[rows.length - 1];
   setText('hBE',     beYear ? String(beYear) : '> ' + (curY + YRS));
   setText('hFI_DR',  '$' + f0(last.annDR));
