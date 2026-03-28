@@ -3,159 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DivGrowth — Dividend Portfolio Monitor</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <title>DivGrowth — Retirement Planner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg:    #07090f;
-      --s1:    #0d1117;
-      --s2:    #161c26;
-      --s3:    #1e2738;
-      --b1:    #1a2438;
-      --b2:    #253348;
-      --text:  #dbe6f5;
-      --dim:   #6c839e;
-      --muted: #394f68;
-      --accent:#4e7aff;
-      --glow:  rgba(78,122,255,.15);
-      --green: #0fcc76;
-      --red:   #ff4d6a;
-      --amber: #f7a826;
-      --purple:#8b5cf6;
-      --r:     10px;
-      --mono:  'DM Mono', monospace;
+      --bg:     #f2f4f1;
+      --paper:  #ffffff;
+      --p2:     #f8faf7;
+      --bdr:    #dde3d8;
+      --bdr2:   #c5cfc0;
+      --text:   #1a2118;
+      --sub:    #465240;
+      --muted:  #879580;
+      --accent: #2d6a4f;
+      --acc2:   #1b4332;
+      --alit:   #d8f3dc;
+      --blue:   #2563eb;
+      --blu2:   #1d4ed8;
+      --blit:   #dbeafe;
+      --green:  #16a34a;
+      --glit:   #dcfce7;
+      --red:    #dc2626;
+      --rlit:   #fee2e2;
+      --amber:  #d97706;
+      --amlit:  #fef3c7;
+      --purp:   #7c3aed;
+      --shdw:   0 1px 3px rgba(0,0,0,.07),0 4px 12px rgba(0,0,0,.04);
+      --shdw2:  0 2px 8px rgba(0,0,0,.1),0 8px 24px rgba(0,0,0,.06);
+      --r: 12px;
+      --mono: 'JetBrains Mono',monospace;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{font-size:14px}
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-    ::-webkit-scrollbar{width:5px;height:5px}
-    ::-webkit-scrollbar-track{background:var(--s1)}
-    ::-webkit-scrollbar-thumb{background:var(--b2);border-radius:3px}
+    html{font-size:16px}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
 
-    nav{height:52px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:60}
-    .brand{font-weight:700;font-size:.95rem;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
-    .brand-orb{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:.85rem}
-    .nav-tabs{display:flex;gap:3px;background:var(--s2);padding:4px;border-radius:8px}
-    .tab{padding:5px 15px;border:none;background:none;color:var(--dim);cursor:pointer;border-radius:6px;font-size:.82rem;font-weight:500;font-family:'DM Sans',sans-serif;transition:all .15s}
-    .tab.on{background:var(--accent);color:#fff}
-    .tab:not(.on):hover{background:var(--s3);color:var(--text)}
-    .nav-r{display:flex;align-items:center;gap:7px}
+    /* NAV */
+    nav{background:var(--acc2);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand-name{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:#fff;letter-spacing:-.01em}
+    .brand-sub{font-size:.68rem;color:rgba(255,255,255,.5);margin-left:3px}
+    .nav-tabs{display:flex;gap:3px;background:rgba(255,255,255,.1);padding:4px;border-radius:10px}
+    .tab{padding:6px 18px;border:none;background:none;color:rgba(255,255,255,.6);cursor:pointer;border-radius:7px;font-size:.875rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
+    .tab.on{background:#fff;color:var(--acc2)}
+    .tab:not(.on):hover{background:rgba(255,255,255,.15);color:#fff}
+    .nav-r{display:flex;align-items:center;gap:8px}
 
-    .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;font-size:.78rem;font-weight:500;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
-    .bp{background:var(--accent);color:#fff}.bp:hover{background:#3d69ee}
-    .bo{background:transparent;color:var(--dim);border:1px solid var(--b2)}.bo:hover{background:var(--s3);color:var(--text)}
-    .bd{background:transparent;color:var(--red);border:1px solid transparent}.bd:hover{background:rgba(255,77,106,.1);border-color:var(--red)}
-    .bsm{padding:5px 10px;font-size:.72rem}
+    /* BTNS */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:.875rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;white-space:nowrap}
+    .bp{background:var(--accent);color:#fff}.bp:hover{background:var(--acc2)}
+    .bo{background:var(--paper);color:var(--sub);border:1.5px solid var(--bdr)}.bo:hover{background:var(--p2);border-color:var(--bdr2)}
+    .bw{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.25)}.bw:hover{background:rgba(255,255,255,.25)}
+    .bd{background:transparent;color:var(--red);border:1.5px solid transparent;padding:6px 10px}.bd:hover{background:var(--rlit);border-color:var(--red)}
+    .bsm{padding:5px 12px;font-size:.8rem}
 
-    .pg{padding:18px;max-width:1600px;margin:0 auto}
-    .pane{display:none}.pane.on{display:block}
+    /* PAGE */
+    .pg{padding:22px 24px;max-width:1520px;margin:0 auto}
+    .pane{display:none}.pane.on{display:block;animation:fi .2s ease}
+    @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
-    .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-    .mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden}
-    .mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r) var(--r) 0 0}
-    .mc.bl::before{background:linear-gradient(90deg,var(--accent),var(--purple))}
-    .mc.gr::before{background:linear-gradient(90deg,var(--green),#09a55f)}
-    .mc.am::before{background:linear-gradient(90deg,var(--amber),#d48a10)}
-    .mc.pu::before{background:linear-gradient(90deg,var(--purple),var(--accent))}
-    .mc-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px;font-weight:600}
-    .mc-val{font-size:1.45rem;font-weight:700;font-family:var(--mono);letter-spacing:-.02em}
-    .mc-sub{font-size:.72rem;color:var(--muted);margin-top:5px;font-family:var(--mono)}
-    .mc-sub.pos{color:var(--green)}.mc-sub.neg{color:var(--red)}
+    .card{background:var(--paper);border:1.5px solid var(--bdr);border-radius:var(--r);box-shadow:var(--shdw);padding:20px 22px}
+    .ctitle{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+    .csub{font-size:.82rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
 
-    .card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:16px 18px}
-    .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
-    .st{font-size:.82rem;font-weight:600}
-    .note{font-size:.7rem;color:var(--muted);font-style:italic}
-
-    .add-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+    /* FORM */
+    .frow{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
     .fld{display:flex;flex-direction:column;gap:5px}
-    .fld label{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
-    input[type=text],input[type=number],select{background:var(--s2);border:1px solid var(--b2);color:var(--text);border-radius:7px;padding:7px 11px;font-size:.85rem;font-family:var(--mono);outline:none;transition:border-color .15s}
-    input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
-    input::placeholder{color:var(--muted);font-family:'DM Sans',sans-serif}
+    .fld label{font-size:.7rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em}
+    input[type=text],input[type=number]{background:var(--p2);border:1.5px solid var(--bdr);color:var(--text);border-radius:8px;padding:8px 12px;font-size:.93rem;font-family:var(--mono);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
+    input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,106,79,.1);background:var(--paper)}
+    input::placeholder{color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem}
 
+    /* ALLOC BAR */
+    .abar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:13px;border:1px solid var(--bdr)}
+    .abar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px;transition:width .4s}
+    .abar-lbl{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:5px}
+    .abar-lbl .av{font-family:var(--mono);font-weight:700}
+    .av.ok{color:var(--green)}.av.warn{color:var(--amber)}.av.err{color:var(--red)}
+
+    /* TABLE */
     .tw{overflow-x:auto}
-    table{width:100%;border-collapse:collapse;font-size:.78rem}
-    thead tr{border-bottom:1px solid var(--b1)}
-    th{padding:7px 11px;text-align:right;font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;white-space:nowrap}
-    th:first-child,th:nth-child(2){text-align:left}
-    td{padding:8px 11px;border-bottom:1px solid rgba(26,36,56,.4);text-align:right;font-family:var(--mono);font-size:.78rem}
-    td:first-child,td:nth-child(2){text-align:left}
+    table{width:100%;border-collapse:collapse}
+    thead tr{border-bottom:2px solid var(--bdr)}
+    th{padding:9px 12px;text-align:left;font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;white-space:nowrap}
+    th.r{text-align:right}
+    td{padding:10px 12px;border-bottom:1px solid var(--bdr);font-size:.88rem;vertical-align:middle}
+    td.r{text-align:right;font-family:var(--mono)}
     tr:last-child td{border-bottom:none}
-    tbody tr:hover td{background:rgba(255,255,255,.015)}
+    tbody tr:hover td{background:var(--p2)}
+    .tkbadge{display:inline-block;background:var(--alit);color:var(--acc2);font-family:var(--mono);font-weight:700;font-size:.8rem;padding:2px 9px;border-radius:6px}
+    .nmc{font-size:.82rem;color:var(--sub);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ti{background:var(--p2);border:1.5px solid var(--bdr);color:var(--text);border-radius:7px;padding:5px 8px;font-size:.83rem;font-family:var(--mono);outline:none;text-align:right;transition:border-color .15s}
+    .ti:focus{border-color:var(--accent);background:var(--paper)}
+    .pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
+    .dim{color:var(--muted);font-size:.82rem}
 
-    .tk{font-weight:700;color:var(--accent);font-size:.82rem;letter-spacing:.02em}
-    .pos{color:var(--green)}.neg{color:var(--red)}
-    .dim2{color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.72rem}
+    /* RIGHT PANEL */
+    .blend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+    .bc{background:var(--p2);border:1.5px solid var(--bdr);border-radius:10px;padding:14px 15px;text-align:center}
+    .bc-val{font-size:1.45rem;font-weight:700;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:3px}
+    .bc-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
 
-    /* DGR inline edit */
-    .dgr-cell{position:relative}
-    .dgr-input{width:72px;background:var(--s3);border:1px solid var(--b2);color:var(--text);border-radius:5px;padding:3px 7px;font-size:.75rem;font-family:var(--mono);outline:none;text-align:right}
-    .dgr-input:focus{border-color:var(--accent)}
-    .dgr-hint{font-size:.6rem;color:var(--muted);margin-top:2px;text-align:right}
-
-    .gb{display:inline-block;padding:2px 7px;border-radius:4px;font-size:.7rem;font-weight:600}
-    .gh{background:rgba(15,204,118,.13);color:var(--green)}
-    .gm{background:rgba(78,122,255,.13);color:var(--accent)}
-    .gl{background:rgba(247,168,38,.13);color:var(--amber)}
-    .gn{background:rgba(255,77,106,.1);color:var(--red)}
-
-    .empty{text-align:center;padding:48px 24px;color:var(--muted)}
-    .empty-icon{font-size:2rem;margin-bottom:12px;opacity:.5}
-    .empty p{font-size:.8rem;line-height:1.8}
-
-    /* tip banner */
-    .tip{background:rgba(15,204,118,.06);border:1px solid rgba(15,204,118,.18);border-radius:8px;padding:10px 14px;font-size:.76rem;color:var(--dim);margin-bottom:12px;line-height:1.65}
-    .tip strong{color:var(--green)}
-
-    /* Projector */
-    .pj-grid{display:grid;grid-template-columns:295px 1fr;gap:14px;align-items:start}
-    .pj-col{display:flex;flex-direction:column;gap:13px}
-    .rg-grp{display:flex;flex-direction:column;gap:6px}
-    .rg-lbl{display:flex;justify-content:space-between;font-size:.74rem;color:var(--dim)}
-    .rg-val{font-family:var(--mono);font-weight:600;color:var(--text)}
-    input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--s3);border-radius:2px;outline:none;border:none;box-shadow:none;padding:0}
+    /* PROJECTOR */
+    .proj-layout{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+    .proj-inputs{display:flex;flex-direction:column;gap:13px}
+    .ig{display:flex;flex-direction:column;gap:5px}
+    .ilbl{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub)}
+    .ilbl .vb{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:.88rem;text-transform:none;letter-spacing:0}
+    input[type=range]{width:100%;height:5px;-webkit-appearance:none;appearance:none;background:var(--bdr);border-radius:3px;outline:none;border:none;padding:0;box-shadow:none}
     input[type=range]:focus{box-shadow:none}
-    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;box-shadow:0 0 0 3px var(--glow)}
-    input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;border:none}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;background:var(--accent);border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+    input[type=range]::-moz-range-thumb{width:17px;height:17px;background:var(--accent);border-radius:50%;cursor:pointer;border:3px solid #fff}
+    .rbounds{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-top:2px}
+    .divider{height:1px;background:var(--bdr)}
     .tgl-row{display:flex;align-items:center;justify-content:space-between}
-    .tgl-txt .tgl-name{font-size:.8rem;color:var(--dim);font-weight:500}
-    .tgl-txt .tgl-desc{font-size:.68rem;color:var(--muted);margin-top:2px}
-    .tgl{position:relative;width:40px;height:22px;flex-shrink:0;cursor:pointer;display:block}
+    .tgl-info .tgl-name{font-size:.87rem;font-weight:600}
+    .tgl-info .tgl-desc{font-size:.74rem;color:var(--muted);margin-top:2px}
+    .tgl{position:relative;width:42px;height:23px;cursor:pointer;display:block;flex-shrink:0}
     .tgl input{opacity:0;width:0;height:0;position:absolute}
-    .tgl-track{position:absolute;inset:0;background:var(--s3);border-radius:11px;border:1px solid var(--b2);transition:.2s}
-    .tgl-thumb{position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:2px;transition:.2s}
-    .tgl input:checked~.tgl-track{background:var(--accent);border-color:var(--accent)}
-    .tgl input:checked~.tgl-thumb{transform:translateX(18px)}
-    .hr{height:1px;background:var(--b1);margin:2px 0}
-    .hls{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:13px}
-    .hl{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:13px 15px;text-align:center}
-    .hl-v{font-size:1.25rem;font-weight:700;font-family:var(--mono)}
-    .hl-l{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
-    .ch-wrap{position:relative;height:320px}
-    .pj-tw{max-height:270px;overflow-y:auto}
-    .hit-row{background:rgba(15,204,118,.06)!important}
+    .tgl-track{position:absolute;inset:0;background:var(--bdr2);border-radius:12px;transition:.2s}
+    .tgl-thumb{position:absolute;width:17px;height:17px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .tgl input:checked~.tgl-track{background:var(--accent)}
+    .tgl input:checked~.tgl-thumb{transform:translateX(19px)}
 
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;place-items:center;z-index:200;backdrop-filter:blur(6px)}
+    /* HIGHLIGHTS */
+    .hls{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .hl{background:var(--paper);border:1.5px solid var(--bdr);border-radius:var(--r);padding:15px 17px;text-align:center;box-shadow:var(--shdw)}
+    .hl-val{font-size:1.4rem;font-weight:700;font-family:var(--mono);letter-spacing:-.04em}
+    .hl-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-top:4px}
+
+    /* CHART */
+    .ch-wrap{position:relative;height:300px}
+
+    /* COMPARISON TABLE — DRIP vs NO DRIP */
+    .pj-scroll{max-height:320px;overflow-y:auto}
+    .grp-head{background:var(--p2)}
+    .hit-row td{background:rgba(22,163,74,.05)!important}
+    .drip-col{color:var(--accent)!important;font-weight:600}
+    .nodrip-col{color:var(--blue)!important}
+
+    /* section divider in proj table */
+    .tbl-grp-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;padding:6px 12px 3px;background:var(--p2);border-bottom:1px solid var(--bdr)}
+
+    /* MODAL */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:200;backdrop-filter:blur(4px)}
     .overlay.on{display:grid}
-    .modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:26px;width:460px;max-width:94vw}
-    .modal h2{font-size:.95rem;font-weight:700;margin-bottom:10px}
-    .modal p{color:var(--dim);font-size:.78rem;line-height:1.75;margin-bottom:18px}
-    .modal a{color:var(--accent)}
+    .modal{background:var(--paper);border:1.5px solid var(--bdr);border-radius:16px;padding:28px;width:480px;max-width:94vw;box-shadow:var(--shdw2)}
+    .modal h2{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;margin-bottom:10px;letter-spacing:-.02em}
+    .modal p{color:var(--sub);font-size:.875rem;line-height:1.8;margin-bottom:18px}
+    .modal a{color:var(--accent);font-weight:600}
     .modal .fld{margin-bottom:13px}
     .modal input{width:100%}
-    .modal-ft{display:flex;gap:8px;justify-content:flex-end}
+    .modal-ft{display:flex;gap:10px;justify-content:flex-end}
 
-    .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--b2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+    .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .ld{display:flex;align-items:center;gap:7px;font-size:.76rem;color:var(--muted)}
-    .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .ldr{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted)}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px var(--glit);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-    @media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:880px){.pj-grid{grid-template-columns:1fr}.hls{grid-template-columns:1fr 1fr}}
-    @media(max-width:580px){.grid4{grid-template-columns:1fr 1fr}nav{padding:0 10px}.pg{padding:10px}}
+    .empty{text-align:center;padding:44px 24px;color:var(--muted)}
+    .empty-icon{font-size:2.2rem;margin-bottom:10px}
+    .empty p{font-size:.88rem;line-height:1.8}
+
+    .fbadge{display:inline-flex;align-items:center;gap:4px;background:var(--alit);color:var(--acc2);font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+
+    /* legend pills for DRIP vs No-DRIP */
+    .legend-pill{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--sub)}
+    .lp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+    @media(max-width:1080px){.proj-layout{grid-template-columns:1fr}.hls{grid-template-columns:1fr 1fr}}
+    @media(max-width:680px){nav{padding:0 12px}.pg{padding:12px}.tab{padding:6px 12px;font-size:.8rem}.hls{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -163,18 +184,12 @@
 <!-- MODAL -->
 <div class="overlay" id="ovl">
   <div class="modal">
-    <h2>🔑 Connect Live Prices</h2>
-    <p>
-      This dashboard uses <strong>Financial Modeling Prep (FMP)</strong> for live stock prices only
-      — just <strong>1 API call per refresh</strong>, any number of tickers.<br><br>
-      1. Go to <a href="https://financialmodelingprep.com/developer/docs" target="_blank">financialmodelingprep.com</a>
-      — sign up free (250 calls/day, no credit card).<br>
-      2. Copy your API key from the dashboard and paste it below.
-    </p>
-    <div class="fld">
-      <label>FMP API Key</label>
-      <input type="text" id="apiIn" placeholder="paste your key here…" />
-    </div>
+    <h2>Connect Live Prices</h2>
+    <p>Prices come from <strong>Financial Modeling Prep (FMP)</strong> — free tier, no credit card.<br><br>
+    1. Visit <a href="https://financialmodelingprep.com/developer/docs" target="_blank">financialmodelingprep.com</a> and sign up.<br>
+    2. Copy your API key and paste it below.<br><br>
+    <em>Your portfolio data stays in your browser only.</em></p>
+    <div class="fld"><label>FMP API Key</label><input type="text" id="apiIn" placeholder="Paste your key here…" /></div>
     <div class="modal-ft">
       <button class="btn bo" onclick="closeModal()">Cancel</button>
       <button class="btn bp" onclick="saveKey()">Save &amp; Connect</button>
@@ -185,214 +200,280 @@
 <!-- NAV -->
 <nav>
   <div class="brand">
-    <div class="brand-orb">📈</div>
-    <span>DivGrowth</span>
+    <span style="font-size:1.3rem">🌿</span>
+    <div>
+      <span class="brand-name">DivGrowth</span>
+      <span class="brand-sub">Retirement Planner</span>
+    </div>
   </div>
   <div class="nav-tabs">
-    <button class="tab on" onclick="goTab('port',this)">Portfolio</button>
-    <button class="tab"    onclick="goTab('proj',this)">Retirement Projector</button>
+    <button class="tab on" onclick="goTab('port',this)">① Portfolio Builder</button>
+    <button class="tab"    onclick="goTab('proj',this)">② Retirement Projector</button>
   </div>
   <div class="nav-r">
-    <span class="ld" id="ldMsg"   style="display:none"><span class="spin"></span>Fetching…</span>
-    <span class="ld" id="liveInd" style="display:none"><span class="live-dot"></span>Live</span>
-    <button class="btn bo bsm" onclick="doRefresh()">↻ Refresh</button>
-    <button class="btn bo bsm" onclick="openModal()">⚙ API Key</button>
+    <span class="ldr" id="ldMsg"   style="display:none"><span class="spin"></span> Fetching…</span>
+    <span class="ldr" id="liveInd" style="display:none"><span class="live-dot"></span> Live</span>
+    <button class="btn bw bsm" onclick="doRefresh()">↻ Prices</button>
+    <button class="btn bw bsm" onclick="openModal()">⚙ API Key</button>
   </div>
 </nav>
 
 <div class="pg">
 
-  <!-- ═══ PORTFOLIO ═══ -->
+  <!-- ════════════════════════════════════
+       PORTFOLIO BUILDER
+  ════════════════════════════════════ -->
   <div class="pane on" id="pane-port">
+    <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
 
-    <div class="tip">
-      <strong>💡 How DGR works here:</strong>
-      Live prices are fetched automatically. <strong>Dividend Growth Rate (DGR)</strong> is entered by
-      you per ticker — it saves automatically. This gives you full control and works 100% on the free tier.
-      TTM dividend is estimated from the last quarterly payout × 4.
-    </div>
+      <!-- Left: form + table -->
+      <div style="flex:1;min-width:0">
 
-    <!-- Summary -->
-    <div class="grid4">
-      <div class="mc bl">
-        <div class="mc-lbl">Portfolio Value</div>
-        <div class="mc-val" id="sVal">—</div>
-        <div class="mc-sub" id="sGain">—</div>
-      </div>
-      <div class="mc gr">
-        <div class="mc-lbl">Est. Annual Dividend</div>
-        <div class="mc-val" id="sInc">—</div>
-        <div class="mc-sub" id="sMo">— / month</div>
-      </div>
-      <div class="mc am">
-        <div class="mc-lbl">Portfolio Yield</div>
-        <div class="mc-val" id="sYld">—</div>
-        <div class="mc-sub" id="sYldC">— yield on cost</div>
-      </div>
-      <div class="mc pu">
-        <div class="mc-lbl">Total Cost Basis</div>
-        <div class="mc-val" id="sCost">—</div>
-        <div class="mc-sub" id="sPos">0 positions</div>
-      </div>
-    </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="ctitle">Build Your Portfolio</div>
+          <div class="csub">Add each holding with its target allocation %. Enter your conviction DGR — the tool calculates blended portfolio metrics, then projects your retirement income.</div>
+          <div class="frow">
+            <div class="fld" style="width:86px"><label>Ticker</label>
+              <input type="text" id="iTk" placeholder="SCHD" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')addPos()" /></div>
+            <div class="fld" style="width:105px"><label>Allocation %</label>
+              <input type="number" id="iAl" placeholder="25" min="0.1" max="100" step="0.1" /></div>
+            <div class="fld" style="width:115px"><label>DGR % / yr</label>
+              <input type="number" id="iDG" placeholder="e.g. 10" min="-20" max="60" step="0.1" /></div>
+            <div class="fld" style="width:105px"><label>Shares (opt.)</label>
+              <input type="number" id="iSh" placeholder="100" min="0" step="0.001" /></div>
+            <div class="fld" style="width:115px"><label>Cost/Sh (opt.)</label>
+              <input type="number" id="iCo" placeholder="72.50" min="0" step="0.01" /></div>
+            <div style="display:flex;gap:8px;margin-top:auto;padding-bottom:1px">
+              <button class="btn bp" onclick="addPos()">＋ Add</button>
+              <button class="btn bo" onclick="loadDemo()">📋 Demo</button>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="abar"><div class="abar-fill" id="allocFill" style="width:0%"></div></div>
+            <div class="abar-lbl"><span>Allocation used</span><span class="av" id="allocPct">0%</span></div>
+          </div>
+        </div>
 
-    <!-- Add -->
-    <div class="card" style="margin-bottom:12px">
-      <div class="sh">
-        <span class="st">Add / Update Position</span>
-        <span class="note">Shares &amp; cost optional — watchlist mode if omitted</span>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div class="ctitle" style="margin-bottom:0">Holdings</div>
+            <span class="ldr" id="tblLd" style="display:none"><span class="spin"></span> Loading…</span>
+          </div>
+          <div class="tw">
+            <table>
+              <thead><tr>
+                <th>Ticker</th><th>Name</th>
+                <th class="r">Alloc %</th><th class="r">Price</th><th class="r">Day %</th>
+                <th class="r">Shares</th><th class="r">Mkt Value</th><th class="r">Gain/Loss</th>
+                <th class="r">Est. Yield</th><th class="r">DGR %/yr</th><th class="r">Ann. Income</th><th></th>
+              </tr></thead>
+              <tbody id="hBody">
+                <tr><td colspan="12"><div class="empty"><div class="empty-icon">🌱</div>
+                  <p>Add your dividend stocks/ETFs above,<br>or click <strong>Demo</strong> to load a sample portfolio.</p>
+                </div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-      <div class="add-row">
-        <div class="fld">
-          <label>Ticker</label>
-          <input type="text" id="iTk" placeholder="SCHD" style="width:85px;text-transform:uppercase"
-            onkeydown="if(event.key==='Enter')addPos()" />
-        </div>
-        <div class="fld">
-          <label>Shares</label>
-          <input type="number" id="iSh" placeholder="0" style="width:105px" min="0" step="0.001" />
-        </div>
-        <div class="fld">
-          <label>Avg Cost / Share</label>
-          <input type="number" id="iCo" placeholder="0.00" style="width:118px" min="0" step="0.01" />
-        </div>
-        <div class="fld">
-          <label>DGR % / yr (optional)</label>
-          <input type="number" id="iDG" placeholder="e.g. 10" style="width:110px" min="-20" max="50" step="0.1" />
-        </div>
-        <button class="btn bp" onclick="addPos()" style="margin-bottom:1px">＋ Add</button>
-        <button class="btn bo" onclick="loadDemo()" style="margin-bottom:1px">📋 Demo</button>
-      </div>
-    </div>
 
-    <!-- Table -->
-    <div class="card">
-      <div class="sh">
-        <span class="st">Holdings &amp; Watchlist</span>
-        <span class="ld" id="tblLd" style="display:none"><span class="spin"></span>Loading…</span>
-      </div>
-      <div class="tw">
-        <table>
-          <thead>
-            <tr>
-              <th>Ticker</th>
-              <th>Name</th>
-              <th>Shares</th>
-              <th>Avg Cost</th>
-              <th>Price</th>
-              <th>Day %</th>
-              <th>Mkt Value</th>
-              <th>Gain / Loss</th>
-              <th>Est. TTM Div</th>
-              <th>Yield</th>
-              <th>My DGR %/yr</th>
-              <th>Ann. Income</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="hBody">
-            <tr><td colspan="13">
-              <div class="empty">
-                <div class="empty-icon">🌱</div>
-                <p>No positions yet. Add a ticker above,<br>or click <strong>Demo</strong> to see an example.</p>
-              </div>
-            </td></tr>
-          </tbody>
-        </table>
+      <!-- Right: metrics + ref -->
+      <div style="width:260px;flex-shrink:0;display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="ctitle" style="margin-bottom:4px">Portfolio Metrics</div>
+          <div class="csub">Weighted across all positions.</div>
+          <div class="blend-grid">
+            <div class="bc"><div class="bc-val pos" id="bYld">—</div><div class="bc-lbl">Blended Yield</div></div>
+            <div class="bc"><div class="bc-val" style="color:var(--accent)" id="bDGR">—</div><div class="bc-lbl">Blended DGR</div></div>
+            <div class="bc"><div class="bc-val" style="color:var(--blue)" id="bMktV">—</div><div class="bc-lbl">Total Value</div></div>
+            <div class="bc"><div class="bc-val pos" id="bAnnI">—</div><div class="bc-lbl">Annual Income</div></div>
+          </div>
+          <button class="btn bp" style="width:100%;justify-content:center;font-size:.9rem;padding:11px" onclick="goToProj()">
+            Project My Retirement →
+          </button>
+        </div>
+        <div class="card">
+          <div class="ctitle" style="font-size:.92rem;margin-bottom:11px">DGR Quick Reference</div>
+          <table style="width:100%;font-size:.83rem">
+            <tbody id="dgrRef">
+              <tr><td style="color:var(--sub);padding:3px 0">SCHD</td><td style="font-family:var(--mono);font-weight:700;color:var(--green);text-align:right">~11%</td></tr>
+              <tr><td style="color:var(--sub);padding:3px 0">COST</td><td style="font-family:var(--mono);font-weight:700;color:var(--green);text-align:right">~13%</td></tr>
+              <tr><td style="color:var(--sub);padding:3px 0">VIG</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~9%</td></tr>
+              <tr><td style="color:var(--sub);padding:3px 0">ABBV</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~8%</td></tr>
+              <tr><td style="color:var(--sub);padding:3px 0">MSFT</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~10%</td></tr>
+              <tr><td style="color:var(--sub);padding:3px 0">JNJ</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~6%</td></tr>
+              <tr><td style="color:var(--sub);padding:3px 0">KO</td><td style="font-family:var(--mono);font-weight:700;color:var(--amber);text-align:right">~5%</td></tr>
+            </tbody>
+          </table>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5">Enter your own conviction rate in the DGR column.</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ PROJECTOR ═══ -->
+  <!-- ════════════════════════════════════
+       RETIREMENT PROJECTOR
+  ════════════════════════════════════ -->
   <div class="pane" id="pane-proj">
-    <div class="pj-grid">
-      <div class="card pj-col">
-        <div class="st" style="margin-bottom:14px">⚙ Projection Settings</div>
-        <div class="fld">
-          <label>Starting Portfolio Value ($)</label>
-          <input type="number" id="pV" value="50000" style="width:100%" oninput="sched()" />
+    <div class="proj-layout">
+
+      <!-- Inputs -->
+      <div class="card proj-inputs">
+        <div class="ctitle">Projection Variables</div>
+        <div class="csub">Matches the spreadsheet model exactly — monthly compounding.</div>
+        <div id="fromPortBadge" style="display:none;margin-bottom:6px"><span class="fbadge">✓ Synced from portfolio</span></div>
+
+        <!-- Starting Portfolio Size -->
+        <div class="ig">
+          <div class="ilbl"><span>Starting Portfolio Size ($)</span></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-weight:700;font-size:1rem;color:var(--sub)">$</span>
+            <input type="number" id="pV" value="0" style="flex:1" oninput="sched()" />
+          </div>
         </div>
-        <div class="fld">
-          <label>Starting Annual Dividend Income ($)</label>
-          <input type="number" id="pI" value="1500" style="width:100%" oninput="sched()" />
+
+        <!-- Starting Dividend Yield -->
+        <div class="ig">
+          <div class="ilbl"><span>Starting Dividend Yield (%)</span></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input type="number" id="pYld" value="2.55" min="0" max="20" step="0.01" style="flex:1" oninput="sched()" />
+            <span style="font-weight:700;font-size:1rem;color:var(--sub)">%</span>
+          </div>
         </div>
-        <div class="hr"></div>
-        <div class="rg-grp">
-          <div class="rg-lbl"><span>Monthly Contribution</span><span class="rg-val" id="lMo">$500</span></div>
-          <input type="range" id="rMo" min="0" max="5000" step="100" value="500"
+
+        <!-- Starting Share Price (normalized) -->
+        <div class="ig">
+          <div class="ilbl"><span>Starting Share Price ($)</span></div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-weight:700;font-size:1rem;color:var(--sub)">$</span>
+            <input type="number" id="pSP" value="100" min="1" step="1" style="flex:1" oninput="sched()" />
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Monthly Contribution -->
+        <div class="ig">
+          <div class="ilbl"><span>Monthly Contribution</span><span class="vb" id="lMo">$2,000</span></div>
+          <input type="range" id="rMo" min="0" max="10000" step="100" value="2000"
             oninput="document.getElementById('lMo').textContent='$'+parseInt(this.value).toLocaleString();sched()" />
+          <div class="rbounds"><span>$0</span><span>$10,000</span></div>
         </div>
-        <div class="rg-grp">
-          <div class="rg-lbl"><span>Dividend Growth Rate / yr</span><span class="rg-val" id="lDG">8.0%</span></div>
-          <input type="range" id="rDG" min="0" max="20" step="0.5" value="8"
-            oninput="document.getElementById('lDG').textContent=parseFloat(this.value).toFixed(1)+'%';sched()" />
-        </div>
-        <div class="rg-grp">
-          <div class="rg-lbl"><span>Price Appreciation / yr</span><span class="rg-val" id="lPG">7.0%</span></div>
-          <input type="range" id="rPG" min="0" max="15" step="0.5" value="7"
-            oninput="document.getElementById('lPG').textContent=parseFloat(this.value).toFixed(1)+'%';sched()" />
-        </div>
-        <div class="rg-grp">
-          <div class="rg-lbl"><span>Years to Project</span><span class="rg-val" id="lYr">30</span></div>
-          <input type="range" id="rYr" min="5" max="40" step="1" value="30"
-            oninput="document.getElementById('lYr').textContent=this.value;sched()" />
-        </div>
-        <div class="rg-grp">
-          <div class="rg-lbl"><span>Retirement Income Target / yr</span><span class="rg-val" id="lTg">$60,000</span></div>
-          <input type="range" id="rTg" min="10000" max="250000" step="5000" value="60000"
-            oninput="document.getElementById('lTg').textContent='$'+parseInt(this.value).toLocaleString();sched()" />
-        </div>
-        <div class="hr"></div>
+
+        <!-- Lump Sum toggle -->
         <div class="tgl-row">
-          <div class="tgl-txt">
-            <div class="tgl-name">DRIP — Reinvest Dividends</div>
-            <div class="tgl-desc">Dividends buy more shares automatically</div>
+          <div class="tgl-info">
+            <div class="tgl-name">Lump Sum (vs Monthly)</div>
+            <div class="tgl-desc">One-time addition instead of monthly</div>
           </div>
           <label class="tgl">
-            <input type="checkbox" id="rDR" checked onchange="sched()" />
-            <div class="tgl-track"></div>
-            <div class="tgl-thumb"></div>
+            <input type="checkbox" id="rLS" onchange="sched()" />
+            <div class="tgl-track"></div><div class="tgl-thumb"></div>
           </label>
         </div>
-        <button class="btn bo bsm" onclick="syncProj()" style="margin-top:2px">↑ Sync from Portfolio</button>
+
+        <div class="divider"></div>
+
+        <!-- Price Growth Rate -->
+        <div class="ig">
+          <div class="ilbl"><span>Price Growth Rate / yr</span><span class="vb" id="lPG">7.0%</span></div>
+          <input type="range" id="rPG" min="0" max="15" step="0.5" value="7"
+            oninput="document.getElementById('lPG').textContent=parseFloat(this.value).toFixed(1)+'%';sched()" />
+          <div class="rbounds"><span>0%</span><span>15%</span></div>
+        </div>
+
+        <!-- Dividend Growth Rate -->
+        <div class="ig">
+          <div class="ilbl"><span>Dividend Growth Rate / yr</span><span class="vb" id="lDG">12.0%</span></div>
+          <input type="range" id="rDG" min="0" max="20" step="0.5" value="12"
+            oninput="document.getElementById('lDG').textContent=parseFloat(this.value).toFixed(1)+'%';sched()" />
+          <div class="rbounds"><span>0%</span><span>20%</span></div>
+        </div>
+
+        <!-- Years -->
+        <div class="ig">
+          <div class="ilbl"><span>Years to Project</span><span class="vb" id="lYr">30 yrs</span></div>
+          <input type="range" id="rYr" min="5" max="45" step="1" value="30"
+            oninput="document.getElementById('lYr').textContent=this.value+' yrs';sched()" />
+          <div class="rbounds"><span>5</span><span>45</span></div>
+        </div>
+
+        <!-- Target -->
+        <div class="ig">
+          <div class="ilbl"><span>Retirement Income Target / yr</span><span class="vb" id="lTg">$60,000</span></div>
+          <input type="range" id="rTg" min="10000" max="300000" step="5000" value="60000"
+            oninput="document.getElementById('lTg').textContent='$'+parseInt(this.value).toLocaleString();sched()" />
+          <div class="rbounds"><span>$10K</span><span>$300K</span></div>
+        </div>
+
+        <button class="btn bo" style="width:100%;justify-content:center" onclick="goTab('port',document.querySelectorAll('.tab')[0])">
+          ← Back to Portfolio
+        </button>
       </div>
 
+      <!-- Results -->
       <div>
+
+        <!-- Highlights -->
         <div class="hls">
           <div class="hl">
-            <div class="hl-v" id="hBE" style="color:var(--green)">—</div>
-            <div class="hl-l">Year Dividends Cover Target</div>
+            <div class="hl-val pos" id="hBE">—</div>
+            <div class="hl-lbl">🎯 Year You Hit Target</div>
           </div>
           <div class="hl">
-            <div class="hl-v" id="hFI" style="color:var(--green)">—</div>
-            <div class="hl-l">Annual Income at End of Period</div>
+            <div class="hl-val" style="color:var(--accent)" id="hFI_DR">—</div>
+            <div class="hl-lbl">Annual Income (DRIP)</div>
           </div>
           <div class="hl">
-            <div class="hl-v" id="hFV" style="color:var(--accent)">—</div>
-            <div class="hl-l">Portfolio Value at End</div>
+            <div class="hl-val" style="color:var(--blue)" id="hFI_ND">—</div>
+            <div class="hl-lbl">Annual Income (No DRIP)</div>
+          </div>
+          <div class="hl">
+            <div class="hl-val" style="color:var(--purp)" id="hFV">—</div>
+            <div class="hl-lbl">Portfolio Value at End</div>
           </div>
         </div>
-        <div class="card" style="margin-bottom:12px">
+
+        <!-- Legend -->
+        <div style="display:flex;gap:18px;margin-bottom:12px;padding:0 2px;flex-wrap:wrap">
+          <span class="legend-pill"><span class="lp-dot" style="background:var(--accent)"></span>DRIP (reinvested)</span>
+          <span class="legend-pill"><span class="lp-dot" style="background:var(--blue)"></span>No DRIP (income paid out)</span>
+          <span class="legend-pill"><span class="lp-dot" style="background:var(--amber);opacity:.7"></span>Retirement target</span>
+          <span style="font-size:.75rem;color:var(--muted);margin-left:auto;align-self:center">📊 Monthly model · Annual compounding via (1+r)^(1/12)</span>
+        </div>
+
+        <!-- Chart -->
+        <div class="card" style="margin-bottom:14px">
           <div class="ch-wrap"><canvas id="pjCvs"></canvas></div>
         </div>
+
+        <!-- Year-by-year table -->
         <div class="card">
-          <div class="st" style="margin-bottom:10px">Year-by-Year Breakdown</div>
-          <div class="pj-tw tw">
+          <div style="font-family:'Fraunces',serif;font-size:.98rem;font-weight:600;margin-bottom:13px;letter-spacing:-.02em">Year-by-Year Breakdown — DRIP vs No DRIP</div>
+          <div class="pj-scroll tw">
             <table>
               <thead>
                 <tr>
-                  <th style="text-align:left">Year</th>
-                  <th>Portfolio Value</th>
-                  <th>Annual Div. Income</th>
-                  <th>Monthly Income</th>
-                  <th>Yield on Value</th>
-                  <th>Total Invested</th>
+                  <th>Year</th>
+                  <th class="r">Share Price</th>
+                  <th class="r">Div Yield</th>
+                  <th class="r">Mo. Div/Sh</th>
+                  <th class="r" style="color:var(--blue)">Shares (No DRIP)</th>
+                  <th class="r" style="color:var(--accent)">Shares (DRIP)</th>
+                  <th class="r" style="color:var(--blue)">Mo. Income (No DRIP)</th>
+                  <th class="r" style="color:var(--accent)">Mo. Income (DRIP)</th>
+                  <th class="r" style="color:var(--blue)">Ann. Income (No DRIP)</th>
+                  <th class="r" style="color:var(--accent)">Ann. Income (DRIP)</th>
+                  <th class="r" style="color:var(--blue)">Value (No DRIP)</th>
+                  <th class="r" style="color:var(--accent)">Value (DRIP)</th>
+                  <th class="r">Total Invested</th>
                 </tr>
               </thead>
               <tbody id="pjBody"></tbody>
             </table>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -400,52 +481,68 @@
 </div>
 
 <script>
-/* ── STATE ── */
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
 let KEY = localStorage.getItem('dg_key') || '';
-// POS: [{ticker, shares, avgCost, dgr}]  dgr = % number or null
 let POS = JSON.parse(localStorage.getItem('dg_pos') || '[]');
-let QD  = {};  // ticker → FMP quote
+let QD  = {};
 let pjChart = null, schedTimer = null;
 
-/* ── INIT ── */
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  renderTbl(); runProj();
-  if (!KEY) openModal(); else doRefresh();
+  renderTbl(); updateBlend(); runProj();
+  if (!KEY) openModal();
+  else if (POS.length) doRefresh();
 });
 
-/* ── TABS ── */
+/* ══════════════════════════════════
+   TABS
+══════════════════════════════════ */
 function goTab(id, btn) {
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById('pane-' + id).classList.add('on');
   btn.classList.add('on');
 }
+function goToProj() {
+  syncProj();
+  goTab('proj', document.querySelectorAll('.tab')[1]);
+}
 
-/* ── MODAL ── */
+/* ══════════════════════════════════
+   MODAL
+══════════════════════════════════ */
 function openModal()  { document.getElementById('ovl').classList.add('on'); document.getElementById('apiIn').value = KEY; }
 function closeModal() { document.getElementById('ovl').classList.remove('on'); }
 function saveKey() {
   KEY = (document.getElementById('apiIn').value || '').trim();
   localStorage.setItem('dg_key', KEY);
   closeModal();
-  if (KEY) doRefresh();
+  if (KEY && POS.length) doRefresh();
 }
 
-/* ── API ── */
-const FMP = 'https://financialmodelingprep.com/api/v3';
-
+/* ══════════════════════════════════
+   API — /quote/ only (free, batched)
+══════════════════════════════════ */
 async function getQuotes(tks) {
   if (!tks.length) return {};
-  const r = await fetch(`${FMP}/quote/${tks.join(',')}?apikey=${KEY}`);
+  const r = await fetch(`https://financialmodelingprep.com/api/v3/quote/${tks.join(',')}?apikey=${KEY}`);
   if (!r.ok) throw new Error('FMP ' + r.status);
   const d = await r.json();
-  if (!Array.isArray(d)) throw new Error('FMP response error');
+  if (!Array.isArray(d)) throw new Error('Unexpected response');
   const m = {};
   d.forEach(q => m[q.symbol] = q);
   return m;
 }
+// Estimate TTM = lastDiv (most recent quarterly payout) × 4
+function ttm(q) { return (q && q.lastDiv > 0) ? q.lastDiv * 4 : null; }
 
-/* ── REFRESH ── */
+/* ══════════════════════════════════
+   REFRESH
+══════════════════════════════════ */
 async function doRefresh() {
   if (!KEY) { openModal(); return; }
   if (!POS.length) return;
@@ -455,272 +552,346 @@ async function doRefresh() {
     hideEl('ldMsg'); showEl('liveInd');
   } catch(e) {
     hideEl('ldMsg');
-    alert('Error fetching data. Check your API key or try again.\n\n' + e.message);
+    alert('Could not fetch prices.\n\n' + e.message);
   } finally {
     hideEl('tblLd');
-    renderTbl(); updateCards(); syncProj();
+    renderTbl(); updateBlend();
   }
 }
 
-/* ── POSITIONS ── */
+/* ══════════════════════════════════
+   POSITIONS
+══════════════════════════════════ */
 function addPos() {
-  const tk = (document.getElementById('iTk').value || '').trim().toUpperCase();
-  if (!tk) return;
-  const sh  = parseFloat(document.getElementById('iSh').value) || 0;
-  const co  = parseFloat(document.getElementById('iCo').value) || 0;
-  const dgv = document.getElementById('iDG').value.trim();
-  const dgr = dgv !== '' ? parseFloat(dgv) : null;
-  const i   = POS.findIndex(p => p.ticker === tk);
-  if (i >= 0) POS[i] = { ticker:tk, shares:sh, avgCost:co, dgr };
-  else POS.push({ ticker:tk, shares:sh, avgCost:co, dgr });
+  const tk = (document.getElementById('iTk').value||'').trim().toUpperCase();
+  if (!tk) { document.getElementById('iTk').focus(); return; }
+  const al = parseFloat(document.getElementById('iAl').value)||0;
+  const dg = document.getElementById('iDG').value.trim();
+  const sh = parseFloat(document.getElementById('iSh').value)||0;
+  const co = parseFloat(document.getElementById('iCo').value)||0;
+  const entry = {ticker:tk, alloc:al, dgr:dg!==''?parseFloat(dg):null, shares:sh, avgCost:co};
+  const i = POS.findIndex(p=>p.ticker===tk);
+  if (i>=0) POS[i]=entry; else POS.push(entry);
   savePOS();
-  ['iTk','iSh','iCo','iDG'].forEach(id => document.getElementById(id).value = '');
-  renderTbl();
+  ['iTk','iAl','iDG','iSh','iCo'].forEach(id=>document.getElementById(id).value='');
+  renderTbl(); updateBlend();
   if (KEY) {
     showEl('tblLd');
-    getQuotes([tk]).then(q => { Object.assign(QD, q); hideEl('tblLd'); renderTbl(); updateCards(); syncProj(); })
-                   .catch(() => hideEl('tblLd'));
+    getQuotes([tk]).then(q=>{Object.assign(QD,q);hideEl('tblLd');renderTbl();updateBlend();}).catch(()=>hideEl('tblLd'));
   }
 }
-
 function delPos(tk) {
-  POS = POS.filter(p => p.ticker !== tk);
-  delete QD[tk];
-  savePOS(); renderTbl(); updateCards();
+  POS=POS.filter(p=>p.ticker!==tk);delete QD[tk];
+  savePOS();renderTbl();updateBlend();
 }
-
-// Called when user edits DGR inline
-function setDgr(tk, val) {
-  const v = val.trim();
-  const i = POS.findIndex(p => p.ticker === tk);
-  if (i < 0) return;
-  POS[i].dgr = v !== '' ? parseFloat(v) : null;
-  savePOS(); updateCards();
+function setAlloc(tk,v)  { setF(tk,'alloc',  v!==''?parseFloat(v):0); }
+function setDgr(tk,v)    { setF(tk,'dgr',    v!==''?parseFloat(v):null); }
+function setShares(tk,v) { setF(tk,'shares', v!==''?parseFloat(v):0); }
+function setF(tk,f,v) {
+  const i=POS.findIndex(p=>p.ticker===tk);if(i<0)return;
+  POS[i][f]=v;savePOS();updateBlend();updateAllocBar();
 }
+function savePOS(){localStorage.setItem('dg_pos',JSON.stringify(POS));}
 
-function savePOS() { localStorage.setItem('dg_pos', JSON.stringify(POS)); }
-
-function loadDemo() {
-  POS = [
-    {ticker:'SCHD', shares:150,  avgCost:72.5,  dgr:11},
-    {ticker:'COST', shares:5,    avgCost:680,   dgr:13},
-    {ticker:'VIG',  shares:40,   avgCost:165,   dgr:9},
-    {ticker:'KO',   shares:60,   avgCost:58,    dgr:5},
-    {ticker:'ABBV', shares:25,   avgCost:148,   dgr:8},
-    {ticker:'JNJ',  shares:20,   avgCost:155,   dgr:6},
-    {ticker:'MSFT', shares:8,    avgCost:320,   dgr:10},
-    {ticker:'SPY',  shares:5,    avgCost:480,   dgr:null},
+function loadDemo(){
+  POS=[
+    {ticker:'SCHD',alloc:35,dgr:11, shares:150,avgCost:72.50},
+    {ticker:'COST',alloc:10,dgr:13, shares:5,  avgCost:680  },
+    {ticker:'VIG', alloc:15,dgr:9,  shares:40, avgCost:165  },
+    {ticker:'KO',  alloc:10,dgr:5,  shares:60, avgCost:58   },
+    {ticker:'ABBV',alloc:10,dgr:8,  shares:25, avgCost:148  },
+    {ticker:'JNJ', alloc:10,dgr:6,  shares:20, avgCost:155  },
+    {ticker:'MSFT',alloc:5, dgr:10, shares:8,  avgCost:320  },
+    {ticker:'SPY', alloc:5, dgr:null,shares:5, avgCost:480  },
   ];
-  savePOS(); renderTbl();
+  savePOS();renderTbl();updateBlend();
   if (KEY) doRefresh();
 }
 
-/* ── TTM ESTIMATE ──
-   FMP /quote returns `lastDiv` = most recent single payout.
-   We multiply × 4 (quarterly assumption) for TTM estimate.
-   This is clearly labelled "Est." in the UI. */
-function ttmEst(q) {
-  if (!q || !q.lastDiv) return null;
-  return q.lastDiv * 4;
-}
-
-/* ── RENDER TABLE ── */
+/* ══════════════════════════════════
+   RENDER HOLDINGS TABLE
+══════════════════════════════════ */
 function renderTbl() {
-  const tb = document.getElementById('hBody');
-  if (!POS.length) {
-    tb.innerHTML = `<tr><td colspan="13"><div class="empty"><div class="empty-icon">🌱</div><p>No positions yet. Add a ticker above,<br>or click <strong>Demo</strong> to see an example.</p></div></td></tr>`;
-    updateCards(); return;
+  const tb=document.getElementById('hBody');
+  if (!POS.length){
+    tb.innerHTML=`<tr><td colspan="12"><div class="empty"><div class="empty-icon">🌱</div><p>Add your dividend stocks/ETFs above,<br>or click <strong>Demo</strong> to load a sample portfolio.</p></div></td></tr>`;
+    updateAllocBar();return;
   }
-  tb.innerHTML = POS.map(p => {
-    const q     = QD[p.ticker] || {};
-    const price = q.price;
-    const day   = q.changesPercentage;
-    const ttm   = ttmEst(q);
-    const yld   = (price && ttm) ? ttm / price : null;
-    const mktV  = (price && p.shares) ? price * p.shares : null;
-    const basis = (p.shares && p.avgCost) ? p.shares * p.avgCost : null;
-    const gain  = (mktV != null && basis != null) ? mktV - basis : null;
-    const gainP = (gain != null && basis) ? gain / basis : null;
-    const annI  = (ttm && p.shares) ? ttm * p.shares : null;
-    const nm    = (q.name && q.name !== p.ticker) ? trunc(q.name, 22) : '—';
-    const dgrV  = p.dgr != null ? p.dgr : '';
-
+  tb.innerHTML=POS.map(p=>{
+    const q=QD[p.ticker]||{};
+    const price=q.price,day=q.changesPercentage;
+    const div4=ttm(q);
+    const yld=(price&&div4)?div4/price:null;
+    const mktV=(price&&p.shares)?price*p.shares:null;
+    const basis=(p.shares&&p.avgCost)?p.shares*p.avgCost:null;
+    const gain=(mktV!=null&&basis!=null)?mktV-basis:null;
+    const gainP=(gain!=null&&basis)?gain/basis:null;
+    const annI=(div4&&p.shares)?div4*p.shares:null;
+    const nm=(q.name&&q.name!==p.ticker)?trunc(q.name,22):'—';
     return `<tr>
-      <td><span class="tk">${p.ticker}</span></td>
-      <td class="dim2">${nm}</td>
-      <td>${p.shares ? fn(p.shares, p.shares>=10?2:4) : '<span class="dim2">—</span>'}</td>
-      <td>${p.avgCost ? '$'+fn(p.avgCost) : '<span class="dim2">—</span>'}</td>
-      <td>${price != null ? '$'+fn(price) : '<span class="dim2">loading…</span>'}</td>
-      <td class="${day>0?'pos':day<0?'neg':''}">${day!=null?(day>0?'+':'')+fn(day)+'%':'<span class="dim2">—</span>'}</td>
-      <td>${mktV!=null ? '$'+f0(mktV) : '<span class="dim2">—</span>'}</td>
-      <td class="${gain>0?'pos':gain<0?'neg':''}">${gain!=null?(gain>=0?'▲ ':'▼ ')+'$'+f0(Math.abs(gain))+' ('+fn(gainP*100,1)+'%)':'<span class="dim2">—</span>'}</td>
-      <td class="dim2">${ttm!=null ? '~$'+fn(ttm) : '—'}</td>
-      <td>${yld!=null ? fp(yld) : '<span class="dim2">—</span>'}</td>
-      <td class="dgr-cell">
-        <input class="dgr-input" type="number" value="${dgrV}" placeholder="—"
-          step="0.1" min="-20" max="50"
-          onchange="setDgr('${p.ticker}',this.value)"
-          title="Your expected annual dividend growth rate for ${p.ticker}" />
-        <div class="dgr-hint">${dgrBadge(p.dgr)}</div>
-      </td>
-      <td class="pos">${annI!=null ? '$'+f0(annI) : '<span class="dim2">—</span>'}</td>
-      <td><button class="btn bd bsm" onclick="delPos('${p.ticker}')">✕</button></td>
+      <td><span class="tkbadge">${p.ticker}</span></td>
+      <td class="nmc">${nm}</td>
+      <td class="r"><input class="ti" style="width:70px" type="number" value="${p.alloc||''}" placeholder="—" min="0.1" max="100" step="0.1" onchange="setAlloc('${p.ticker}',this.value)"/></td>
+      <td class="r">${price!=null?'$'+fn(price):'<span class="dim">fetching…</span>'}</td>
+      <td class="r ${day>0?'pos':day<0?'neg':''}">${day!=null?(day>0?'+':'')+fn(day)+'%':'<span class="dim">—</span>'}</td>
+      <td class="r"><input class="ti" style="width:88px" type="number" value="${p.shares||''}" placeholder="—" min="0" step="0.001" onchange="setShares('${p.ticker}',this.value)"/></td>
+      <td class="r">${mktV!=null?'$'+f0(mktV):'<span class="dim">—</span>'}</td>
+      <td class="r ${gain>0?'pos':gain<0?'neg':''}">${gain!=null?(gain>=0?'▲ ':'▼ ')+'$'+f0(Math.abs(gain))+' ('+fn(gainP*100,1)+'%)':'<span class="dim">—</span>'}</td>
+      <td class="r">${yld!=null?fp(yld):'<span class="dim">—</span>'}</td>
+      <td class="r"><input class="ti" style="width:74px" type="number" value="${p.dgr!=null?p.dgr:''}" placeholder="—" min="-20" max="60" step="0.1" onchange="setDgr('${p.ticker}',this.value)" title="Expected annual dividend growth rate for ${p.ticker}"/></td>
+      <td class="r pos">${annI!=null?'$'+f0(annI):'<span class="dim">—</span>'}</td>
+      <td><button class="btn bd" onclick="delPos('${p.ticker}')">✕</button></td>
     </tr>`;
   }).join('');
-  updateCards();
+  updateAllocBar();
 }
 
-function dgrBadge(dgr) {
-  if (dgr == null) return 'enter %/yr';
-  if (dgr >= 8)  return `<span class="gb gh">+${dgr}% 🔥</span>`;
-  if (dgr >= 4)  return `<span class="gb gm">+${dgr}%</span>`;
-  if (dgr >= 0)  return `<span class="gb gl">+${dgr}%</span>`;
-  return `<span class="gb gn">${dgr}%</span>`;
+function updateAllocBar(){
+  const total=POS.reduce((s,p)=>s+(p.alloc||0),0);
+  document.getElementById('allocFill').style.width=Math.min(total,100)+'%';
+  const sp=document.getElementById('allocPct');
+  sp.textContent=total.toFixed(1)+'%';
+  sp.className='av '+(total>101?'err':total>99.5?'ok':'warn');
 }
 
-function updateCards() {
-  let val=0, cost=0, inc=0;
-  POS.forEach(p => {
-    const q=QD[p.ticker]||{};
-    const ttm=ttmEst(q);
-    if (q.price && p.shares) { val += q.price*p.shares; }
-    if (ttm && p.shares)     { inc += ttm*p.shares; }
-    if (p.avgCost && p.shares) cost += p.avgCost*p.shares;
+/* ══════════════════════════════════
+   BLENDED METRICS
+══════════════════════════════════ */
+function updateBlend(){
+  let totAlloc=0,wYld=0,wDGR=0,dgrA=0,totMktV=0,totAnnI=0;
+  POS.forEach(p=>{
+    const q=QD[p.ticker]||{},al=p.alloc||0;
+    const div4=ttm(q),yld=(q.price&&div4)?div4/q.price:null;
+    totAlloc+=al;
+    if(yld!=null)    wYld+=yld*al;
+    if(p.dgr!=null)  {wDGR+=p.dgr*al;dgrA+=al;}
+    if(q.price&&p.shares) totMktV+=q.price*p.shares;
+    if(div4&&p.shares)    totAnnI+=div4*p.shares;
   });
-  const gl=val-cost, glP=cost?gl/cost:0;
-  const yld=val?inc/val:0, yldC=cost?inc/cost:0;
-
-  setText('sVal',  val  ? '$'+f0(val)  : '—');
-  setText('sInc',  inc  ? '$'+f0(inc)  : '—');
-  setText('sMo',   inc  ? '$'+f0(inc/12)+' / month' : '— / month');
-  setText('sYld',  yld  ? (yld*100).toFixed(2)+'%' : '—');
-  setText('sYldC', yldC ? (yldC*100).toFixed(2)+'% yield on cost' : '—');
-  setText('sCost', cost ? '$'+f0(cost) : '—');
-  setText('sPos',  POS.length+' position'+(POS.length!==1?'s':''));
-  const ge=document.getElementById('sGain');
-  if (cost && val) {
-    ge.textContent=(gl>=0?'▲ +':'▼ ')+'$'+f0(Math.abs(gl))+' ('+fn(glP*100,1)+'%)';
-    ge.className='mc-sub '+(gl>=0?'pos':'neg');
-  } else { ge.textContent='—'; ge.className='mc-sub'; }
+  const bYld=totAlloc>0?wYld/totAlloc:null;
+  const bDGR=dgrA>0?wDGR/dgrA:null;
+  setText('bYld', bYld!=null?fp(bYld):'—');
+  setText('bDGR', bDGR!=null?'+'+fn(bDGR,1)+'%/yr':'—');
+  setText('bMktV',totMktV>0?'$'+f0(totMktV):'—');
+  setText('bAnnI',totAnnI>0?'$'+f0(totAnnI):'—');
 }
 
-/* ── PROJECTOR ── */
-function syncProj() {
-  let val=0, inc=0;
-  POS.forEach(p => {
-    const q=QD[p.ticker]||{};
-    const ttm=ttmEst(q);
-    if (q.price && p.shares) val += q.price*p.shares;
-    if (ttm && p.shares)     inc += ttm*p.shares;
+/* ══════════════════════════════════
+   SYNC PROJECTOR FROM PORTFOLIO
+══════════════════════════════════ */
+function syncProj(){
+  let totMktV=0,totAnnI=0,wDGR=0,dgrA=0,wYld=0,yldA=0;
+  POS.forEach(p=>{
+    const q=QD[p.ticker]||{},div4=ttm(q),al=p.alloc||0;
+    if(q.price&&p.shares) totMktV+=q.price*p.shares;
+    if(div4&&p.shares)    totAnnI+=div4*p.shares;
+    if(p.dgr!=null&&al)  {wDGR+=p.dgr*al;dgrA+=al;}
+    if(q.price&&div4&&al){wYld+=(div4/q.price)*al;yldA+=al;}
   });
-  if (val>0) document.getElementById('pV').value = Math.round(val);
-  if (inc>0) document.getElementById('pI').value = Math.round(inc);
+  const bDGR=dgrA>0?wDGR/dgrA:null;
+  const bYld=yldA>0?wYld/yldA:null;
+
+  if(totMktV>0) document.getElementById('pV').value=Math.round(totMktV);
+  if(bYld!=null) document.getElementById('pYld').value=fn(bYld*100,2);
+
+  if(bDGR!=null){
+    const c=Math.min(20,Math.max(0,Math.round(bDGR*2)/2));
+    document.getElementById('rDG').value=c;
+    document.getElementById('lDG').textContent=c.toFixed(1)+'%';
+  }
+
+  const badge=document.getElementById('fromPortBadge');
+  badge.style.display=(totMktV>0||bDGR!=null)?'block':'none';
   sched();
 }
 
-function sched() {
-  clearTimeout(schedTimer);
-  schedTimer = setTimeout(runProj, 80);
-}
+/* ══════════════════════════════════
+   PROJECTION MODEL
+   Exact match to the spreadsheet:
+   - Monthly simulation
+   - Price and DPS use (1+r)^(1/12) monthly compounding
+   - Dividend = prev_shares × current_DPS
+   - Shares += contribution / price each month
+   - DRIP: shares += dividend / price each month
+   - Starting: shares = (StartingPortfolio + first_contribution) / StartingSharePrice
+══════════════════════════════════ */
+function sched(){clearTimeout(schedTimer);schedTimer=setTimeout(runProj,80);}
 
-function runProj() {
-  const SV  = parseFloat(document.getElementById('pV').value)  || 0;
-  const SI  = parseFloat(document.getElementById('pI').value)  || 0;
-  const MO  = parseFloat(document.getElementById('rMo').value) || 0;
-  const gD  = parseFloat(document.getElementById('rDG').value) / 100;
-  const gP  = parseFloat(document.getElementById('rPG').value) / 100;
-  const YRS = parseInt(document.getElementById('rYr').value)   || 30;
-  const TGT = parseFloat(document.getElementById('rTg').value) || 60000;
-  const DR  = document.getElementById('rDR').checked;
+function runProj(){
+  const SV  = parseFloat(document.getElementById('pV').value)   || 0;   // Starting portfolio $
+  const YLD = parseFloat(document.getElementById('pYld').value) / 100 || 0.0255; // Annual yield
+  const SP  = parseFloat(document.getElementById('pSP').value)  || 100; // Starting share price
+  const MO  = parseFloat(document.getElementById('rMo').value)  || 0;   // Monthly contribution $
+  const LS  = document.getElementById('rLS').checked;                    // Lump Sum mode
+  const gP  = parseFloat(document.getElementById('rPG').value)  / 100;  // Annual price growth
+  const gD  = parseFloat(document.getElementById('rDG').value)  / 100;  // Annual DGR
+  const YRS = parseInt(document.getElementById('rYr').value)    || 30;
+  const TGT = parseFloat(document.getElementById('rTg').value)  || 60000;
 
-  const P0 = 100;
-  let shares = SV / P0;
-  let dps    = (shares>0 && SI>0) ? SI/shares : P0*0.03;
-  let price  = P0;
-  let cumInv = SV;
-  const curY = new Date().getFullYear();
-  const rows = [];
+  // Monthly compounding factors — exact same as spreadsheet
+  const mPF = Math.pow(1 + gP, 1/12);  // monthly price factor
+  const mDF = Math.pow(1 + gD, 1/12);  // monthly dividend factor
+
+  // Month 0: initialize
+  let price = SP;
+  let dps   = SP * YLD / 12;  // starting monthly dividend per share
+
+  // First purchase: Starting Portfolio + first month's contribution
+  const firstBuy = LS ? (SV + MO) : (SV + MO);
+  let sharesND = firstBuy / price;   // No-DRIP shares
+  let sharesDR = firstBuy / price;   // DRIP shares
+
+  let cumDivND = 0;   // cumulative dividend paid (No DRIP)
+  let cumDivDR = 0;   // cumulative dividend paid (DRIP)
+  let cumInv   = firstBuy;
+
+  const MONTHS = YRS * 12;
+  const curY   = new Date().getFullYear();
+  const yearRows = [];
   let beYear = null;
 
-  for (let y=1; y<=YRS; y++) {
-    cumInv += MO*12;
-    shares += (MO*12) / price;
-    dps    *= (1+gD);
-    const div = shares*dps;
-    if (DR) shares += div/price;
-    price  *= (1+gP);
-    const pv=shares*price, ai=shares*dps;
-    if (!beYear && ai>=TGT) beYear=curY+y;
-    rows.push({year:curY+y, pv, ai, cumInv});
+  // Month-by-month simulation
+  for (let m = 1; m <= MONTHS; m++) {
+    // Step 1: advance price and DPS (monthly compounding)
+    price *= mPF;
+    dps   *= mDF;
+
+    // Step 2: dividends earned this month (previous shares × current DPS)
+    const divND = sharesND * dps;
+    const divDR = sharesDR * dps;
+    cumDivND += divND;
+    cumDivDR += divDR;
+
+    // Step 3: DRIP — reinvest dividends into new shares
+    sharesDR += divDR / price;
+
+    // Step 4: regular contribution — buy new shares (monthly mode or skip if lump sum)
+    if (!LS) {
+      sharesND += MO / price;
+      sharesDR += MO / price;
+      cumInv   += MO;
+    }
+    // (Lump sum already added at month 0; no further contributions)
+
+    // Step 5: record end-of-year snapshots (every 12th month)
+    if (m % 12 === 0) {
+      const yr     = m / 12;
+      const valND  = sharesND * price;
+      const valDR  = sharesDR * price;
+      // Projected annual income = current monthly income × 12
+      const annND  = sharesND * dps * 12;
+      const annDR  = sharesDR * dps * 12;
+
+      if (!beYear && Math.max(annND, annDR) >= TGT) beYear = curY + yr;
+
+      yearRows.push({
+        year: curY + yr,
+        price,
+        yield: dps * 12 / price,
+        dps,           // monthly
+        sharesND,
+        sharesDR,
+        moIncND: divND,  // last monthly payout of this year
+        moIncDR: divDR,
+        annND,
+        annDR,
+        valND,
+        valDR,
+        cumInv,
+      });
+    }
   }
 
-  const last=rows[rows.length-1];
-  setText('hBE', beYear ? String(beYear) : '>'+(curY+YRS));
-  setText('hFI', '$'+f0(last.ai));
-  setText('hFV', '$'+f0(last.pv));
-  drawChart(rows,TGT);
-  drawProjTable(rows,TGT);
+  // Update highlights
+  const last = yearRows[yearRows.length - 1];
+  setText('hBE',     beYear ? String(beYear) : '> '+(curY+YRS));
+  setText('hFI_DR',  '$'+f0(last.annDR));
+  setText('hFI_ND',  '$'+f0(last.annND));
+  setText('hFV',     '$'+f0(last.valDR));
+
+  drawChart(yearRows, TGT);
+  drawProjTable(yearRows, TGT);
 }
 
-function drawChart(rows, tgt) {
+/* ══════════════════════════════════
+   CHART
+══════════════════════════════════ */
+function drawChart(rows, tgt){
   const ctx=document.getElementById('pjCvs').getContext('2d');
-  if (pjChart) pjChart.destroy();
+  if(pjChart)pjChart.destroy();
   pjChart=new Chart(ctx,{
     type:'line',
     data:{
       labels:rows.map(r=>r.year),
       datasets:[
-        {label:'Portfolio Value',data:rows.map(r=>Math.round(r.pv)),borderColor:'#4e7aff',
-         backgroundColor:'rgba(78,122,255,.07)',fill:true,yAxisID:'yV',tension:.4,pointRadius:0,borderWidth:2},
-        {label:'Annual Dividend Income',data:rows.map(r=>Math.round(r.ai)),borderColor:'#0fcc76',
-         backgroundColor:'rgba(15,204,118,.07)',fill:true,yAxisID:'yI',tension:.4,pointRadius:0,borderWidth:2},
-        {label:'Retirement Target',data:rows.map(()=>tgt),borderColor:'#f7a826',
-         borderDash:[5,4],yAxisID:'yI',pointRadius:0,borderWidth:1.5,fill:false}
+        {label:'Annual Income (DRIP)',    data:rows.map(r=>Math.round(r.annDR)),
+         borderColor:'#2d6a4f',backgroundColor:'rgba(45,106,79,.07)',fill:true,yAxisID:'yI',tension:.4,pointRadius:0,borderWidth:2.5},
+        {label:'Annual Income (No DRIP)', data:rows.map(r=>Math.round(r.annND)),
+         borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',fill:true,yAxisID:'yI',tension:.4,pointRadius:0,borderWidth:2.5},
+        {label:'Portfolio Value (DRIP)',  data:rows.map(r=>Math.round(r.valDR)),
+         borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.04)',fill:false,yAxisID:'yV',tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[3,3]},
+        {label:'Retirement Target',       data:rows.map(()=>tgt),
+         borderColor:'#d97706',borderDash:[6,4],yAxisID:'yI',pointRadius:0,borderWidth:1.5,fill:false},
       ]
     },
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'index',intersect:false},
       plugins:{
-        legend:{labels:{color:'#6c839e',font:{size:11,family:'DM Sans'},boxWidth:12,padding:14}},
-        tooltip:{backgroundColor:'#0d1117',borderColor:'#1a2438',borderWidth:1,
+        legend:{labels:{color:'#465240',font:{size:12,family:'Plus Jakarta Sans',weight:'600'},boxWidth:12,padding:16,usePointStyle:true,pointStyleWidth:10}},
+        tooltip:{backgroundColor:'#fff',borderColor:'#dde3d8',borderWidth:1.5,titleColor:'#1a2118',bodyColor:'#465240',padding:11,
+          titleFont:{family:'Plus Jakarta Sans',size:12,weight:'700'},bodyFont:{family:'Plus Jakarta Sans',size:11},
           callbacks:{label:c=>` ${c.dataset.label}: $${c.raw.toLocaleString()}`}}
       },
       scales:{
-        x:{ticks:{color:'#394f68',font:{size:11}},grid:{color:'rgba(26,36,56,.6)'}},
-        yV:{type:'linear',position:'left',
-          ticks:{color:'#4e7aff',font:{size:11},callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K')},
-          grid:{color:'rgba(26,36,56,.6)'}},
-        yI:{type:'linear',position:'right',
-          ticks:{color:'#0fcc76',font:{size:11},callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K')},
+        x:{ticks:{color:'#87958f',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
+        yI:{type:'linear',position:'left',
+          title:{display:true,text:'Annual Income / Target',color:'#87958f',font:{size:11}},
+          ticks:{color:'#2d6a4f',font:{size:11},callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K')},
+          grid:{color:'rgba(0,0,0,.04)'}},
+        yV:{type:'linear',position:'right',
+          title:{display:true,text:'Portfolio Value',color:'#87958f',font:{size:11}},
+          ticks:{color:'#7c3aed',font:{size:11},callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K')},
           grid:{display:false}}
       }
     }
   });
 }
 
-function drawProjTable(rows,tgt) {
+/* ══════════════════════════════════
+   PROJECTION TABLE
+══════════════════════════════════ */
+function drawProjTable(rows, tgt){
   document.getElementById('pjBody').innerHTML=rows.map(r=>{
-    const hit=r.ai>=tgt;
+    const hit=Math.max(r.annDR,r.annND)>=tgt;
     return `<tr class="${hit?'hit-row':''}">
-      <td style="text-align:left;font-family:var(--mono)">${r.year}${hit?' 🎯':''}</td>
-      <td style="color:var(--accent)">$${f0(r.pv)}</td>
-      <td style="color:var(--green)">$${f0(r.ai)}</td>
-      <td style="color:var(--green)">$${f0(r.ai/12)}</td>
-      <td>${r.pv>0?(r.ai/r.pv*100).toFixed(2)+'%':'—'}</td>
-      <td style="color:var(--muted)">$${f0(r.cumInv)}</td>
+      <td style="font-family:var(--mono);font-weight:700">${r.year}${hit?' 🎯':''}</td>
+      <td class="r">$${fn(r.price)}</td>
+      <td class="r">${(r.yield*100).toFixed(2)}%</td>
+      <td class="r">$${fn(r.dps,4)}</td>
+      <td class="r nodrip-col">$${fn(r.sharesND,2)}</td>
+      <td class="r drip-col">$${fn(r.sharesDR,2)}</td>
+      <td class="r nodrip-col">$${fn(r.moIncND)}</td>
+      <td class="r drip-col">$${fn(r.moIncDR)}</td>
+      <td class="r nodrip-col">$${f0(r.annND)}</td>
+      <td class="r drip-col">$${f0(r.annDR)}</td>
+      <td class="r nodrip-col">$${f0(r.valND)}</td>
+      <td class="r drip-col">$${f0(r.valDR)}</td>
+      <td class="r" style="color:var(--muted)">$${f0(r.cumInv)}</td>
     </tr>`;
   }).join('');
 }
 
-/* ── UTILS ── */
-function fn(n,d=2){ return n==null||isNaN(n)?'—':n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-function f0(n)    { return n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US'); }
-function fp(n)    { return n==null?'—':(n*100).toFixed(2)+'%'; }
-function trunc(s,n){ return s.length>n?s.slice(0,n)+'…':s; }
-function setText(id,v){ const e=document.getElementById(id);if(e)e.textContent=v; }
-function showEl(id){ const e=document.getElementById(id);if(e)e.style.display='flex'; }
-function hideEl(id){ const e=document.getElementById(id);if(e)e.style.display='none'; }
+/* ══════════════════════════════════
+   UTILS
+══════════════════════════════════ */
+function fn(n,d=2){return n==null||isNaN(n)?'—':n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function f0(n){return n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');}
+function fp(n){return n==null?'—':(n*100).toFixed(2)+'%';}
+function trunc(s,n){return s.length>n?s.slice(0,n)+'…':s;}
+function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+function showEl(id){const e=document.getElementById(id);if(e)e.style.display='flex';}
+function hideEl(id){const e=document.getElementById(id);if(e)e.style.display='none';}
 </script>
 </body>
 </html>
