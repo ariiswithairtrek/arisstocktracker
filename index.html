@@ -240,7 +240,7 @@
 
         <div class="card" style="margin-bottom:16px">
           <div class="ctitle">Build Your Portfolio</div>
-          <div class="csub">Add each holding with its target allocation %. Enter your conviction DGR — the tool calculates blended portfolio metrics, then projects your retirement income.</div>
+          <div class="csub">Add each holding with its target allocation %. Enter your conviction DGR and yield — required for ETFs since Finnhub doesn't provide ETF dividend data on the free tier.</div>
           <div class="frow">
             <div class="fld" style="width:86px"><label>Ticker</label>
               <input type="text" id="iTk" placeholder="SCHD" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')addPos()" /></div>
@@ -248,6 +248,8 @@
               <input type="number" id="iAl" placeholder="25" min="0.1" max="100" step="0.1" /></div>
             <div class="fld" style="width:115px"><label>DGR % / yr</label>
               <input type="number" id="iDG" placeholder="e.g. 10" min="-20" max="60" step="0.1" /></div>
+            <div class="fld" style="width:115px"><label>Yield % (ETFs)</label>
+              <input type="number" id="iYl" placeholder="e.g. 3.5" min="0" max="30" step="0.01" title="Required for ETFs — Finnhub doesn't provide ETF yield data on the free tier" /></div>
             <div class="fld" style="width:105px"><label>Shares (opt.)</label>
               <input type="number" id="iSh" placeholder="100" min="0" step="0.001" /></div>
             <div class="fld" style="width:115px"><label>Cost/Sh (opt.)</label>
@@ -274,7 +276,7 @@
                 <th>Ticker</th><th>Name</th>
                 <th class="r">Alloc %</th><th class="r">Price</th><th class="r">Day %</th>
                 <th class="r">Shares</th><th class="r">Mkt Value</th><th class="r">Gain/Loss</th>
-                <th class="r">Est. Yield</th><th class="r">DGR %/yr</th><th class="r">Ann. Income</th><th></th>
+                <th class="r">Yield % ✎</th><th class="r">DGR %/yr ✎</th><th class="r">Ann. Income</th><th></th>
               </tr></thead>
               <tbody id="hBody">
                 <tr><td colspan="12"><div class="empty"><div class="empty-icon">🌱</div>
@@ -627,13 +629,19 @@ function addPos() {
   if (!tk) { document.getElementById('iTk').focus(); return; }
   const al = parseFloat(document.getElementById('iAl').value)||0;
   const dg = document.getElementById('iDG').value.trim();
+  const yl = document.getElementById('iYl').value.trim();
   const sh = parseFloat(document.getElementById('iSh').value)||0;
   const co = parseFloat(document.getElementById('iCo').value)||0;
-  const entry = {ticker:tk, alloc:al, dgr:dg!==''?parseFloat(dg):null, shares:sh, avgCost:co};
+  const entry = {
+    ticker:tk, alloc:al,
+    dgr:  dg!==''?parseFloat(dg):null,
+    manYld: yl!==''?parseFloat(yl)/100:null,  // store as decimal
+    shares:sh, avgCost:co
+  };
   const i = POS.findIndex(p=>p.ticker===tk);
   if (i>=0) POS[i]=entry; else POS.push(entry);
   savePOS();
-  ['iTk','iAl','iDG','iSh','iCo'].forEach(id=>document.getElementById(id).value='');
+  ['iTk','iAl','iDG','iYl','iSh','iCo'].forEach(id=>document.getElementById(id).value='');
   renderTbl(); updateBlend();
   if (KEY) {
     showEl('tblLd');
@@ -644,9 +652,10 @@ function delPos(tk) {
   POS=POS.filter(p=>p.ticker!==tk);delete QD[tk];
   savePOS();renderTbl();updateBlend();
 }
-function setAlloc(tk,v)  { setF(tk,'alloc',  v!==''?parseFloat(v):0); }
-function setDgr(tk,v)    { setF(tk,'dgr',    v!==''?parseFloat(v):null); }
-function setShares(tk,v) { setF(tk,'shares', v!==''?parseFloat(v):0); }
+function setAlloc(tk,v)  { setF(tk,'alloc',   v!==''?parseFloat(v):0); }
+function setDgr(tk,v)    { setF(tk,'dgr',     v!==''?parseFloat(v):null); }
+function setManYld(tk,v) { setF(tk,'manYld',  v!==''?parseFloat(v)/100:null); }
+function setShares(tk,v) { setF(tk,'shares',  v!==''?parseFloat(v):0); }
 function setF(tk,f,v) {
   const i=POS.findIndex(p=>p.ticker===tk);if(i<0)return;
   POS[i][f]=v;savePOS();updateBlend();updateAllocBar();
@@ -655,14 +664,14 @@ function savePOS(){localStorage.setItem('dg_pos',JSON.stringify(POS));}
 
 function loadDemo(){
   POS=[
-    {ticker:'SCHD',alloc:35,dgr:11, shares:150,avgCost:72.50},
-    {ticker:'COST',alloc:10,dgr:13, shares:5,  avgCost:680  },
-    {ticker:'VIG', alloc:15,dgr:9,  shares:40, avgCost:165  },
-    {ticker:'KO',  alloc:10,dgr:5,  shares:60, avgCost:58   },
-    {ticker:'ABBV',alloc:10,dgr:8,  shares:25, avgCost:148  },
-    {ticker:'JNJ', alloc:10,dgr:6,  shares:20, avgCost:155  },
-    {ticker:'MSFT',alloc:5, dgr:10, shares:8,  avgCost:320  },
-    {ticker:'SPY', alloc:5, dgr:null,shares:5, avgCost:480  },
+    {ticker:'SCHD',alloc:35,dgr:11, manYld:0.035, shares:150,avgCost:72.50},
+    {ticker:'COST',alloc:10,dgr:13, manYld:null,  shares:5,  avgCost:680  },
+    {ticker:'VIG', alloc:15,dgr:9,  manYld:0.018, shares:40, avgCost:165  },
+    {ticker:'KO',  alloc:10,dgr:5,  manYld:null,  shares:60, avgCost:58   },
+    {ticker:'ABBV',alloc:10,dgr:8,  manYld:null,  shares:25, avgCost:148  },
+    {ticker:'JNJ', alloc:10,dgr:6,  manYld:null,  shares:20, avgCost:155  },
+    {ticker:'MSFT',alloc:5, dgr:10, manYld:null,  shares:8,  avgCost:320  },
+    {ticker:'SPY', alloc:5, dgr:null,manYld:0.013,shares:5,  avgCost:480  },
   ];
   savePOS();renderTbl();updateBlend();
   if (KEY) doRefresh();
@@ -679,15 +688,19 @@ function renderTbl() {
   }
   tb.innerHTML=POS.map(p=>{
     const q=QD[p.ticker]||{};
-    const price=q.price,day=q.changesPercentage;
-    const div4=ttm(q);
-    const yld=(price&&div4)?div4/price:null;
-    const mktV=(price&&p.shares)?price*p.shares:null;
-    const basis=(p.shares&&p.avgCost)?p.shares*p.avgCost:null;
-    const gain=(mktV!=null&&basis!=null)?mktV-basis:null;
-    const gainP=(gain!=null&&basis)?gain/basis:null;
-    const annI=(div4&&p.shares)?div4*p.shares:null;
-    const nm=(q.name&&q.name!==p.ticker)?trunc(q.name,22):'—';
+    const price=q.price, day=q.changesPercentage;
+    // Effective yield: manual entry wins over API (ETFs need manual)
+    const apiYld  = (q.price && q.annualDiv) ? q.annualDiv/q.price : null;
+    const effYld  = p.manYld != null ? p.manYld : apiYld;
+    const annDiv  = (price && effYld) ? price * effYld : null;
+    const mktV    = (price && p.shares) ? price*p.shares : null;
+    const basis   = (p.shares && p.avgCost) ? p.shares*p.avgCost : null;
+    const gain    = (mktV!=null && basis!=null) ? mktV-basis : null;
+    const gainP   = (gain!=null && basis) ? gain/basis : null;
+    const annI    = (annDiv && p.shares) ? annDiv*p.shares : null;
+    const nm      = (q.name && q.name!==p.ticker) ? trunc(q.name,22) : '—';
+    const yldDisp = p.manYld != null ? p.manYld*100 : (apiYld != null ? apiYld*100 : '');
+    const yldSrc  = p.manYld != null ? '' : (apiYld != null ? ' title="From API"' : '');
     return `<tr>
       <td><span class="tkbadge">${p.ticker}</span></td>
       <td class="nmc">${nm}</td>
@@ -697,7 +710,7 @@ function renderTbl() {
       <td class="r"><input class="ti" style="width:88px" type="number" value="${p.shares||''}" placeholder="—" min="0" step="0.001" onchange="setShares('${p.ticker}',this.value)"/></td>
       <td class="r">${mktV!=null?'$'+f0(mktV):'<span class="dim">—</span>'}</td>
       <td class="r ${gain>0?'pos':gain<0?'neg':''}">${gain!=null?(gain>=0?'▲ ':'▼ ')+'$'+f0(Math.abs(gain))+' ('+fn(gainP*100,1)+'%)':'<span class="dim">—</span>'}</td>
-      <td class="r">${yld!=null?fp(yld):'<span class="dim">—</span>'}</td>
+      <td class="r"><input class="ti" style="width:78px" type="number" value="${yldDisp!==''?fn(yldDisp,2):''}" placeholder="enter %"${yldSrc} min="0" max="30" step="0.01" onchange="setManYld('${p.ticker}',this.value)" title="Enter yield % manually — required for ETFs"/></td>
       <td class="r"><input class="ti" style="width:74px" type="number" value="${p.dgr!=null?p.dgr:''}" placeholder="—" min="-20" max="60" step="0.1" onchange="setDgr('${p.ticker}',this.value)" title="Expected annual dividend growth rate for ${p.ticker}"/></td>
       <td class="r pos">${annI!=null?'$'+f0(annI):'<span class="dim">—</span>'}</td>
       <td><button class="btn bd" onclick="delPos('${p.ticker}')">✕</button></td>
@@ -718,19 +731,29 @@ function updateAllocBar(){
    BLENDED METRICS
 ══════════════════════════════════ */
 function updateBlend(){
-  let totAlloc=0,wYld=0,wDGR=0,dgrA=0,totMktV=0,totAnnI=0;
+  let totAlloc=0,wYld=0,yldA=0,wDGR=0,dgrA=0,totMktV=0,totAnnI=0;
   POS.forEach(p=>{
     const q=QD[p.ticker]||{},al=p.alloc||0;
-    const div4=ttm(q),yld=(q.price&&div4)?div4/q.price:null;
+    const apiYld = (q.price && q.annualDiv) ? q.annualDiv/q.price : null;
+    const effYld = p.manYld != null ? p.manYld : apiYld;
+    const annDiv = (q.price && effYld) ? q.price * effYld : null;
     totAlloc+=al;
-    if(yld!=null)    wYld+=yld*al;
-    if(p.dgr!=null)  {wDGR+=p.dgr*al;dgrA+=al;}
-    if(q.price&&p.shares) totMktV+=q.price*p.shares;
-    if(div4&&p.shares)    totAnnI+=div4*p.shares;
+    if(effYld!=null)  {wYld+=effYld*al; yldA+=al;}
+    if(p.dgr!=null)   {wDGR+=p.dgr*al;  dgrA+=al;}
+    if(q.price&&p.shares)  totMktV+=q.price*p.shares;
+    if(annDiv&&p.shares)   totAnnI+=annDiv*p.shares;
   });
-  const bYld=totAlloc>0?wYld/totAlloc:null;
+  const bYld=yldA>0?wYld/yldA:null;
   const bDGR=dgrA>0?wDGR/dgrA:null;
-  setText('bYld', bYld!=null?fp(bYld):'—');
+  // Show coverage warning if some positions have no yield
+  const missing=POS.filter(p=>{
+    const q=QD[p.ticker]||{};
+    const apiYld=(q.price&&q.annualDiv)?q.annualDiv/q.price:null;
+    return p.manYld==null && apiYld==null;
+  });
+  const warn = missing.length>0 ? ` <span style="color:var(--amber);font-size:.7rem">(${missing.map(p=>p.ticker).join(', ')} missing yield)</span>` : '';
+  const yldEl=document.getElementById('bYld');
+  if(yldEl) yldEl.innerHTML=(bYld!=null?fp(bYld):'—')+warn;
   setText('bDGR', bDGR!=null?'+'+fn(bDGR,1)+'%/yr':'—');
   setText('bMktV',totMktV>0?'$'+f0(totMktV):'—');
   setText('bAnnI',totAnnI>0?'$'+f0(totAnnI):'—');
@@ -742,11 +765,14 @@ function updateBlend(){
 function syncProj(){
   let totMktV=0,totAnnI=0,wDGR=0,dgrA=0,wYld=0,yldA=0;
   POS.forEach(p=>{
-    const q=QD[p.ticker]||{},div4=ttm(q),al=p.alloc||0;
+    const q=QD[p.ticker]||{},al=p.alloc||0;
+    const apiYld=(q.price&&q.annualDiv)?q.annualDiv/q.price:null;
+    const effYld=p.manYld!=null?p.manYld:apiYld;
+    const annDiv=(q.price&&effYld)?q.price*effYld:null;
     if(q.price&&p.shares) totMktV+=q.price*p.shares;
-    if(div4&&p.shares)    totAnnI+=div4*p.shares;
+    if(annDiv&&p.shares)  totAnnI+=annDiv*p.shares;
     if(p.dgr!=null&&al)  {wDGR+=p.dgr*al;dgrA+=al;}
-    if(q.price&&div4&&al){wYld+=(div4/q.price)*al;yldA+=al;}
+    if(effYld!=null&&al) {wYld+=effYld*al;yldA+=al;}
   });
   const bDGR=dgrA>0?wDGR/dgrA:null;
   const bYld=yldA>0?wYld/yldA:null;
