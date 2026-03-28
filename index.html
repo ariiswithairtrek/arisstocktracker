@@ -3,193 +3,290 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DivGrowth — Retirement Planner</title>
+  <title>DivGrowth — Dividend Retirement Planner</title>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg:     #f2f4f1;
+      --bg:     #f0f2ef;
       --paper:  #ffffff;
-      --p2:     #f8faf7;
+      --p2:     #f7f9f6;
+      --p3:     #eef1ec;
       --bdr:    #dde3d8;
-      --bdr2:   #c5cfc0;
+      --bdr2:   #c3cebe;
       --text:   #1a2118;
-      --sub:    #465240;
+      --sub:    #46523f;
       --muted:  #879580;
       --accent: #2d6a4f;
       --acc2:   #1b4332;
+      --acc3:   #40916c;
       --alit:   #d8f3dc;
-      --blue:   #2563eb;
-      --blu2:   #1d4ed8;
+      --alit2:  #b7e4c7;
+      --blue:   #1d4ed8;
       --blit:   #dbeafe;
       --green:  #16a34a;
       --glit:   #dcfce7;
       --red:    #dc2626;
       --rlit:   #fee2e2;
-      --amber:  #d97706;
+      --amber:  #b45309;
       --amlit:  #fef3c7;
-      --purp:   #7c3aed;
-      --shdw:   0 1px 3px rgba(0,0,0,.07),0 4px 12px rgba(0,0,0,.04);
-      --shdw2:  0 2px 8px rgba(0,0,0,.1),0 8px 24px rgba(0,0,0,.06);
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 14px rgba(0,0,0,.04);
+      --shadow2: 0 4px 16px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.07);
       --r: 12px;
-      --mono: 'JetBrains Mono',monospace;
+      --mono: 'JetBrains Mono', monospace;
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    html{font-size:16px}
-    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-    ::-webkit-scrollbar{width:6px;height:6px}
-    ::-webkit-scrollbar-track{background:var(--bg)}
-    ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--bdr2); border-radius: 3px; }
 
-    /* NAV */
-    nav{background:var(--acc2);height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100}
-    .brand{display:flex;align-items:center;gap:10px}
-    .brand-name{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:600;color:#fff;letter-spacing:-.01em}
-    .brand-sub{font-size:.68rem;color:rgba(255,255,255,.5);margin-left:3px}
-    .nav-tabs{display:flex;gap:3px;background:rgba(255,255,255,.1);padding:4px;border-radius:10px}
-    .tab{padding:6px 18px;border:none;background:none;color:rgba(255,255,255,.6);cursor:pointer;border-radius:7px;font-size:.875rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s}
-    .tab.on{background:#fff;color:var(--acc2)}
-    .tab:not(.on):hover{background:rgba(255,255,255,.15);color:#fff}
-    .nav-r{display:flex;align-items:center;gap:8px}
+    /* ── NAV ── */
+    nav {
+      background: var(--acc2);
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-name { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; color: #fff; letter-spacing: -.01em; }
+    .brand-tag { font-size: .68rem; color: rgba(255,255,255,.5); }
+    .nav-steps { display: flex; gap: 4px; background: rgba(255,255,255,.1); padding: 4px; border-radius: 10px; }
+    .tab { padding: 6px 20px; border: none; background: none; color: rgba(255,255,255,.6); cursor: pointer; border-radius: 7px; font-size: .875rem; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .tab.on { background: #fff; color: var(--acc2); }
+    .tab:not(.on):hover { background: rgba(255,255,255,.15); color: #fff; }
+    .nav-r { display: flex; align-items: center; gap: 8px; }
 
-    /* BTNS */
-    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:.875rem;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;transition:all .15s;white-space:nowrap}
-    .bp{background:var(--accent);color:#fff}.bp:hover{background:var(--acc2)}
-    .bo{background:var(--paper);color:var(--sub);border:1.5px solid var(--bdr)}.bo:hover{background:var(--p2);border-color:var(--bdr2)}
-    .bw{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.25)}.bw:hover{background:rgba(255,255,255,.25)}
-    .bd{background:transparent;color:var(--red);border:1.5px solid transparent;padding:6px 10px}.bd:hover{background:var(--rlit);border-color:var(--red)}
-    .bsm{padding:5px 12px;font-size:.8rem}
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 20px; border-radius: 9px; border: none; cursor: pointer; font-size: .9rem; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif; transition: all .15s; white-space: nowrap; }
+    .bp  { background: var(--accent); color: #fff; } .bp:hover  { background: var(--acc2); box-shadow: 0 4px 12px rgba(45,106,79,.3); }
+    .bp2 { background: var(--acc2);   color: #fff; } .bp2:hover { background: #0d2b1f; }
+    .bo  { background: var(--paper);  color: var(--sub); border: 1.5px solid var(--bdr); } .bo:hover { background: var(--p2); border-color: var(--bdr2); }
+    .bw  { background: rgba(255,255,255,.15); color: #fff; border: 1.5px solid rgba(255,255,255,.25); } .bw:hover { background: rgba(255,255,255,.25); }
+    .bd  { background: transparent; color: var(--red); border: 1.5px solid transparent; padding: 6px 10px; } .bd:hover { background: var(--rlit); border-color: var(--red); }
+    .bsm { padding: 5px 13px; font-size: .8rem; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
 
-    /* PAGE */
-    .pg{padding:22px 24px;max-width:1520px;margin:0 auto}
-    .pane{display:none}.pane.on{display:block;animation:fi .2s ease}
-    @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    /* ── LAYOUT ── */
+    .pg  { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+    .pane { display: none; }
+    .pane.on { display: block; animation: fi .2s ease; }
+    @keyframes fi { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
 
-    .card{background:var(--paper);border:1.5px solid var(--bdr);border-radius:var(--r);box-shadow:var(--shdw);padding:20px 22px}
-    .ctitle{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
-    .csub{font-size:.82rem;color:var(--muted);margin-bottom:16px;line-height:1.5}
+    /* ── CARD ── */
+    .card { background: var(--paper); border: 1.5px solid var(--bdr); border-radius: var(--r); box-shadow: var(--shadow); padding: 22px 24px; }
+    .ctitle { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; letter-spacing: -.02em; margin-bottom: 4px; }
+    .csub   { font-size: .84rem; color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
 
-    /* FORM */
-    .frow{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
-    .fld{display:flex;flex-direction:column;gap:5px}
-    .fld label{font-size:.7rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.07em}
-    input[type=text],input[type=number]{background:var(--p2);border:1.5px solid var(--bdr);color:var(--text);border-radius:8px;padding:8px 12px;font-size:.93rem;font-family:var(--mono);outline:none;transition:border-color .15s,box-shadow .15s;width:100%}
-    input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,106,79,.1);background:var(--paper)}
-    input::placeholder{color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem}
+    /* ── FORM ── */
+    .frow { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .fld  { display: flex; flex-direction: column; gap: 5px; }
+    .fld label { font-size: .71rem; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .07em; }
+    input[type=text], input[type=number] {
+      background: var(--p2); border: 1.5px solid var(--bdr); color: var(--text);
+      border-radius: 8px; padding: 9px 13px; font-size: .94rem; font-family: var(--mono);
+      outline: none; transition: border-color .15s, box-shadow .15s; width: 100%;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,106,79,.1); background: var(--paper); }
+    input::placeholder { color: var(--muted); font-family: 'Plus Jakarta Sans', sans-serif; font-size: .85rem; }
+    input.err { border-color: var(--red); }
 
-    /* ALLOC BAR */
-    .abar{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:13px;border:1px solid var(--bdr)}
-    .abar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:4px;transition:width .4s}
-    .abar-lbl{display:flex;justify-content:space-between;font-size:.76rem;color:var(--muted);margin-top:5px}
-    .abar-lbl .av{font-family:var(--mono);font-weight:700}
-    .av.ok{color:var(--green)}.av.warn{color:var(--amber)}.av.err{color:var(--red)}
+    /* ── BUDGET HERO ── */
+    .budget-hero {
+      background: linear-gradient(135deg, var(--acc2) 0%, var(--accent) 100%);
+      border-radius: var(--r);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .budget-hero-lbl { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: rgba(255,255,255,.8); margin-bottom: 8px; }
+    .budget-input-wrap { display: flex; align-items: center; gap: 10px; }
+    .budget-prefix { font-size: 1.8rem; font-weight: 700; color: #fff; font-family: var(--mono); }
+    .budget-input {
+      background: rgba(255,255,255,.15); border: 2px solid rgba(255,255,255,.35);
+      color: #fff; border-radius: 10px; padding: 10px 16px;
+      font-size: 1.6rem; font-weight: 700; font-family: var(--mono);
+      outline: none; width: 200px; transition: all .15s;
+    }
+    .budget-input:focus { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.7); }
+    .budget-input::placeholder { color: rgba(255,255,255,.45); }
+    .budget-tag { font-size: .78rem; color: rgba(255,255,255,.6); margin-top: 5px; }
 
-    /* TABLE */
-    .tw{overflow-x:auto}
-    table{width:100%;border-collapse:collapse}
-    thead tr{border-bottom:2px solid var(--bdr)}
-    th{padding:9px 12px;text-align:left;font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;white-space:nowrap}
-    th.r{text-align:right}
-    td{padding:10px 12px;border-bottom:1px solid var(--bdr);font-size:.88rem;vertical-align:middle}
-    td.r{text-align:right;font-family:var(--mono)}
-    tr:last-child td{border-bottom:none}
-    tbody tr:hover td{background:var(--p2)}
-    .tkbadge{display:inline-block;background:var(--alit);color:var(--acc2);font-family:var(--mono);font-weight:700;font-size:.8rem;padding:2px 9px;border-radius:6px}
-    .nmc{font-size:.82rem;color:var(--sub);max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .ti{background:var(--p2);border:1.5px solid var(--bdr);color:var(--text);border-radius:7px;padding:5px 8px;font-size:.83rem;font-family:var(--mono);outline:none;text-align:right;transition:border-color .15s}
-    .ti:focus{border-color:var(--accent);background:var(--paper)}
-    .pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
-    .dim{color:var(--muted);font-size:.82rem}
+    .budget-breakdown {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 200px;
+    }
+    .budget-breakdown-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,.6); font-weight: 700; margin-bottom: 4px; }
+    .bd-row { display: flex; align-items: center; justify-content: space-between; font-size: .88rem; color: rgba(255,255,255,.9); }
+    .bd-row .tkb-w { font-family: var(--mono); font-weight: 700; color: var(--alit2); font-size: .82rem; margin-right: 8px; }
+    .bd-row .amt   { font-family: var(--mono); font-weight: 700; color: #fff; }
+    .bd-row .pct   { font-size: .75rem; color: rgba(255,255,255,.55); margin-left: 6px; }
+    .bd-empty-tip { font-size: .82rem; color: rgba(255,255,255,.55); font-style: italic; }
 
-    /* RIGHT PANEL */
-    .blend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-    .bc{background:var(--p2);border:1.5px solid var(--bdr);border-radius:10px;padding:14px 15px;text-align:center}
-    .bc-val{font-size:1.45rem;font-weight:700;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:3px}
-    .bc-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+    /* ── ALLOC BAR ── */
+    .abar      { height: 7px; background: rgba(255,255,255,.15); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+    .abar-fill { height: 100%; background: var(--alit2); border-radius: 4px; transition: width .4s; }
+    .abar-lbl  { display: flex; justify-content: space-between; font-size: .74rem; margin-top: 4px; color: rgba(255,255,255,.6); }
+    .abar-lbl .av { font-family: var(--mono); font-weight: 700; }
+    .av.ok   { color: var(--alit2); }
+    .av.warn { color: #fcd34d; }
+    .av.err  { color: #fca5a5; }
 
-    /* PROJECTOR */
-    .proj-layout{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
-    .proj-inputs{display:flex;flex-direction:column;gap:13px}
-    .ig{display:flex;flex-direction:column;gap:5px}
-    .ilbl{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--sub)}
-    .ilbl .vb{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:.88rem;text-transform:none;letter-spacing:0}
-    input[type=range]{width:100%;height:5px;-webkit-appearance:none;appearance:none;background:var(--bdr);border-radius:3px;outline:none;border:none;padding:0;box-shadow:none}
-    input[type=range]:focus{box-shadow:none}
-    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;background:var(--accent);border-radius:50%;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-    input[type=range]::-moz-range-thumb{width:17px;height:17px;background:var(--accent);border-radius:50%;cursor:pointer;border:3px solid #fff}
-    .rbounds{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-top:2px}
-    .divider{height:1px;background:var(--bdr)}
-    .tgl-row{display:flex;align-items:center;justify-content:space-between}
-    .tgl-info .tgl-name{font-size:.87rem;font-weight:600}
-    .tgl-info .tgl-desc{font-size:.74rem;color:var(--muted);margin-top:2px}
-    .tgl{position:relative;width:42px;height:23px;cursor:pointer;display:block;flex-shrink:0}
-    .tgl input{opacity:0;width:0;height:0;position:absolute}
-    .tgl-track{position:absolute;inset:0;background:var(--bdr2);border-radius:12px;transition:.2s}
-    .tgl-thumb{position:absolute;width:17px;height:17px;background:#fff;border-radius:50%;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-    .tgl input:checked~.tgl-track{background:var(--accent)}
-    .tgl input:checked~.tgl-thumb{transform:translateX(19px)}
+    /* ── HOLDINGS TABLE ── */
+    .tw { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 2px solid var(--bdr); }
+    th { padding: 9px 13px; text-align: left; font-size: .67rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; white-space: nowrap; }
+    th.r { text-align: right; }
+    td { padding: 11px 13px; border-bottom: 1px solid var(--bdr); font-size: .9rem; vertical-align: middle; }
+    td.r { text-align: right; font-family: var(--mono); font-size: .88rem; }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--p2); }
 
-    /* HIGHLIGHTS */
-    .hls{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-    .hl{background:var(--paper);border:1.5px solid var(--bdr);border-radius:var(--r);padding:15px 17px;text-align:center;box-shadow:var(--shdw)}
-    .hl-val{font-size:1.4rem;font-weight:700;font-family:var(--mono);letter-spacing:-.04em}
-    .hl-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-top:4px}
+    .tkbadge { display: inline-block; background: var(--alit); color: var(--acc2); font-family: var(--mono); font-weight: 700; font-size: .8rem; padding: 2px 9px; border-radius: 6px; }
+    .nmc { font-size: .82rem; color: var(--sub); max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mo-contrib { font-family: var(--mono); font-weight: 700; color: var(--accent); font-size: .88rem; }
+    .pos { color: var(--green); font-weight: 600; }
+    .neg { color: var(--red); font-weight: 600; }
+    .dim { color: var(--muted); font-size: .82rem; }
 
-    /* CHART */
-    .ch-wrap{position:relative;height:300px}
+    /* inline table inputs */
+    .ti { background: var(--p2); border: 1.5px solid var(--bdr); color: var(--text); border-radius: 7px; padding: 5px 8px; font-size: .85rem; font-family: var(--mono); outline: none; text-align: right; transition: border-color .15s; }
+    .ti:focus { border-color: var(--accent); background: var(--paper); }
+    .ti.missing { border-color: var(--amber); background: var(--amlit); }
 
-    /* COMPARISON TABLE — DRIP vs NO DRIP */
-    .pj-scroll{max-height:320px;overflow-y:auto}
-    .grp-head{background:var(--p2)}
-    .hit-row td{background:rgba(22,163,74,.05)!important}
-    .drip-col{color:var(--accent)!important;font-weight:600}
-    .nodrip-col{color:var(--blue)!important}
+    /* ── PORTFOLIO SUMMARY STRIP ── */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .sc { background: var(--paper); border: 1.5px solid var(--bdr); border-radius: var(--r); padding: 16px 18px; box-shadow: var(--shadow); }
+    .sc-lbl { font-size: .67rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
+    .sc-val { font-size: 1.5rem; font-weight: 700; font-family: var(--mono); letter-spacing: -.04em; }
+    .sc-sub { font-size: .76rem; color: var(--muted); margin-top: 4px; }
+    .sc-warn { font-size: .72rem; color: var(--amber); margin-top: 4px; font-weight: 600; }
 
-    /* section divider in proj table */
-    .tbl-grp-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;padding:6px 12px 3px;background:var(--p2);border-bottom:1px solid var(--bdr)}
+    /* ── PROJECTOR ── */
+    .proj-container { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+
+    /* required inputs card */
+    .req-card { background: var(--paper); border: 2px solid var(--accent); border-radius: var(--r); box-shadow: var(--shadow); padding: 24px; }
+    .req-title { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 700; color: var(--acc2); margin-bottom: 4px; }
+    .req-sub   { font-size: .82rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+
+    .req-field { margin-bottom: 18px; }
+    .req-field label { display: block; font-size: .75rem; font-weight: 700; color: var(--sub); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+    .req-field .hint { font-size: .76rem; color: var(--muted); margin-top: 5px; }
+    .req-field input { width: 100%; }
+    .req-field input.filled { border-color: var(--accent); background: var(--glit); }
+
+    .filled-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--glit); color: var(--green); font-size: .7rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: .05em; margin-left: 8px; }
+
+    /* auto-filled section */
+    .auto-section { background: var(--p2); border: 1.5px solid var(--bdr); border-radius: 10px; padding: 16px 18px; margin-bottom: 20px; }
+    .auto-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 12px; }
+    .auto-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--bdr); font-size: .88rem; }
+    .auto-row:last-child { border-bottom: none; }
+    .auto-row .label { color: var(--sub); }
+    .auto-row .value { font-family: var(--mono); font-weight: 700; color: var(--acc2); }
+
+    .drip-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+    .drip-info .drip-name { font-size: .9rem; font-weight: 600; }
+    .drip-info .drip-desc { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+    .tgl { position: relative; width: 44px; height: 24px; cursor: pointer; display: block; flex-shrink: 0; }
+    .tgl input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .tgl-track { position: absolute; inset: 0; background: var(--bdr2); border-radius: 12px; transition: .2s; }
+    .tgl-thumb { position: absolute; width: 18px; height: 18px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+    .tgl input:checked ~ .tgl-track { background: var(--accent); }
+    .tgl input:checked ~ .tgl-thumb { transform: translateX(20px); }
+
+    .calc-btn-wrap { margin-top: 8px; }
+
+    /* RESULTS */
+    .results-area { display: flex; flex-direction: column; gap: 16px; }
+
+    .not-ready { background: var(--p2); border: 2px dashed var(--bdr2); border-radius: var(--r); padding: 48px 24px; text-align: center; color: var(--muted); }
+    .not-ready-icon { font-size: 2.5rem; margin-bottom: 14px; }
+    .not-ready p { font-size: .9rem; line-height: 1.8; }
+
+    .highlights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .hl { background: var(--paper); border: 1.5px solid var(--bdr); border-radius: var(--r); padding: 16px 18px; text-align: center; box-shadow: var(--shadow); }
+    .hl-val { font-size: 1.5rem; font-weight: 700; font-family: var(--mono); letter-spacing: -.04em; }
+    .hl-lbl { font-size: .67rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; margin-top: 5px; }
+
+    .ch-wrap { position: relative; height: 300px; }
+    .pj-scroll { max-height: 320px; overflow-y: auto; }
+    .hit-row td { background: rgba(22,163,74,.05) !important; }
+    .hit-row:hover td { background: rgba(22,163,74,.09) !important; }
+    .drip-col   { color: var(--accent) !important; font-weight: 600; }
+    .nodrip-col { color: var(--blue) !important; }
+
+    /* legend */
+    .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+    .lp { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 600; color: var(--sub); }
+    .lp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ERROR BANNER */
+    #errBanner { display: none; background: var(--rlit); border-bottom: 1.5px solid #fca5a5; padding: 10px 28px; font-size: .875rem; color: #991b1b; align-items: center; justify-content: space-between; gap: 12px; }
+    #errBanner strong { font-weight: 700; }
+    #errBanner .err-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
     /* MODAL */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;place-items:center;z-index:200;backdrop-filter:blur(4px)}
-    .overlay.on{display:grid}
-    .modal{background:var(--paper);border:1.5px solid var(--bdr);border-radius:16px;padding:28px;width:480px;max-width:94vw;box-shadow:var(--shdw2)}
-    .modal h2{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;margin-bottom:10px;letter-spacing:-.02em}
-    .modal p{color:var(--sub);font-size:.875rem;line-height:1.8;margin-bottom:18px}
-    .modal a{color:var(--accent);font-weight:600}
-    .modal .fld{margin-bottom:13px}
-    .modal input{width:100%}
-    .modal-ft{display:flex;gap:10px;justify-content:flex-end}
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; place-items: center; z-index: 200; backdrop-filter: blur(4px); }
+    .overlay.on { display: grid; }
+    .modal { background: var(--paper); border: 1.5px solid var(--bdr); border-radius: 16px; padding: 30px; width: 490px; max-width: 94vw; box-shadow: var(--shadow2); }
+    .modal h2 { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
+    .modal p { color: var(--sub); font-size: .875rem; line-height: 1.8; margin-bottom: 20px; }
+    .modal a { color: var(--accent); font-weight: 600; }
+    .modal .fld { margin-bottom: 14px; }
+    .modal input { width: 100%; }
+    .modal-ft { display: flex; gap: 10px; justify-content: flex-end; }
 
-    .spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .ldr{display:flex;align-items:center;gap:7px;font-size:.82rem;color:var(--muted)}
-    .live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 2px var(--glit);animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+    /* SPINNER / LIVE */
+    .spin { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--bdr); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ldr { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--muted); }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px var(--glit); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
 
-    .empty{text-align:center;padding:44px 24px;color:var(--muted)}
-    .empty-icon{font-size:2.2rem;margin-bottom:10px}
-    .empty p{font-size:.88rem;line-height:1.8}
+    .empty { text-align: center; padding: 42px 20px; color: var(--muted); }
+    .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+    .empty p { font-size: .88rem; line-height: 1.8; }
 
-    .fbadge{display:inline-flex;align-items:center;gap:4px;background:var(--alit);color:var(--acc2);font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.05em}
+    /* divider */
+    .divider { height: 1px; background: var(--bdr); margin: 4px 0; }
 
-    /* legend pills for DRIP vs No-DRIP */
-    .legend-pill{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:600;color:var(--sub)}
-    .lp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-
-    @media(max-width:1080px){.proj-layout{grid-template-columns:1fr}.hls{grid-template-columns:1fr 1fr}}
-    @media(max-width:680px){nav{padding:0 12px}.pg{padding:12px}.tab{padding:6px 12px;font-size:.8rem}.hls{grid-template-columns:1fr 1fr}}
+    /* responsive */
+    @media(max-width:1100px) { .proj-container { grid-template-columns: 1fr; } .highlights { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:760px)  { .summary-strip { grid-template-columns: 1fr 1fr; } nav { padding: 0 14px; } .pg { padding: 14px; } .budget-hero { padding: 18px; gap: 16px; } }
+    @media(max-width:500px)  { .tab { padding: 6px 11px; font-size: .8rem; } }
   </style>
 </head>
 <body>
 
-<!-- MODAL -->
+<!-- ── MODAL ── -->
 <div class="overlay" id="ovl">
   <div class="modal">
     <h2>Connect Live Prices</h2>
-    <p>Prices come from <strong>Finnhub</strong> — genuinely free, 60 calls/min, no credit card needed.<br><br>
-    1. Go to <a href="https://finnhub.io" target="_blank">finnhub.io</a> → click <strong>Get free API key</strong> → sign up with email.<br>
-    2. Your key appears instantly on the dashboard. Copy and paste it below.<br><br>
-    ✅ <em>Works today — no legacy endpoint issues. Your portfolio stays in your browser only.</em></p>
-    <div class="fld"><label>Finnhub API Key</label><input type="text" id="apiIn" placeholder="Paste your Finnhub key here…" /></div>
+    <p>Prices come from <strong>Finnhub</strong> — genuinely free, no credit card.<br><br>
+    1. Go to <a href="https://finnhub.io" target="_blank">finnhub.io</a> → <strong>Get free API key</strong> → sign up with email.<br>
+    2. Your key appears instantly. Copy and paste it below.<br><br>
+    <em>✅ Works today. Your portfolio data stays in your browser only.</em></p>
+    <div class="fld"><label>Finnhub API Key</label><input type="text" id="apiIn" placeholder="Paste your key here…" /></div>
     <div class="modal-ft">
       <button class="btn bo" onclick="closeModal()">Cancel</button>
       <button class="btn bp" onclick="saveKey()">Save &amp; Connect</button>
@@ -197,292 +294,280 @@
   </div>
 </div>
 
-<!-- NAV -->
+<!-- ── NAV ── -->
 <nav>
   <div class="brand">
     <span style="font-size:1.3rem">🌿</span>
     <div>
       <span class="brand-name">DivGrowth</span>
-      <span class="brand-sub">Retirement Planner</span>
+      <span class="brand-tag">&nbsp;Dividend Retirement Planner</span>
     </div>
   </div>
-  <div class="nav-tabs">
+  <div class="nav-steps">
     <button class="tab on" onclick="goTab('port',this)">① Portfolio Builder</button>
     <button class="tab"    onclick="goTab('proj',this)">② Retirement Projector</button>
   </div>
   <div class="nav-r">
-    <span class="ldr" id="ldMsg"   style="display:none"><span class="spin"></span> Fetching…</span>
-    <span class="ldr" id="liveInd" style="display:none"><span class="live-dot"></span> Live</span>
-    <button class="btn bw bsm" onclick="doRefresh()">↻ Prices</button>
+    <span class="ldr" id="ldMsg"   style="display:none"><span class="spin"></span>&nbsp;Fetching…</span>
+    <span class="ldr" id="liveInd" style="display:none"><span class="live-dot"></span>&nbsp;Live</span>
+    <button class="btn bw bsm" onclick="doRefresh()">↻ Refresh Prices</button>
     <button class="btn bw bsm" onclick="openModal()">⚙ API Key</button>
   </div>
 </nav>
 
-<!-- Error banner (replaces alert popups) -->
-<div id="errBanner" style="display:none;background:#fee2e2;border-bottom:1.5px solid #fca5a5;padding:10px 24px;font-size:.875rem;color:#991b1b;display:none;align-items:center;justify-content:space-between;gap:12px;">
+<!-- ── ERROR BANNER ── -->
+<div id="errBanner">
   <span>⚠️ <strong>Could not fetch prices.</strong> <span id="errMsg"></span></span>
-  <span style="display:flex;gap:10px;flex-shrink:0;">
-    <button onclick="openModal()" style="background:#991b1b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Fix Finnhub Key</button>
-    <button onclick="hideErr()" style="background:transparent;border:none;color:#991b1b;font-size:1.1rem;cursor:pointer;line-height:1;">✕</button>
-  </span>
+  <div class="err-actions">
+    <button onclick="openModal()" style="background:#991b1b;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif">Fix Key</button>
+    <button onclick="hideErr()" style="background:transparent;border:none;color:#991b1b;font-size:1.1rem;cursor:pointer">✕</button>
+  </div>
 </div>
 
 <div class="pg">
 
-  <!-- ════════════════════════════════════
-       PORTFOLIO BUILDER
-  ════════════════════════════════════ -->
+  <!-- ════════════════════════════════
+       STEP 1 — PORTFOLIO BUILDER
+  ════════════════════════════════ -->
   <div class="pane on" id="pane-port">
-    <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
 
-      <!-- Left: form + table -->
-      <div style="flex:1;min-width:0">
-
-        <div class="card" style="margin-bottom:16px">
-          <div class="ctitle">Build Your Portfolio</div>
-          <div class="csub">Add each holding with its target allocation %. Enter your conviction DGR and yield — required for ETFs since Finnhub doesn't provide ETF dividend data on the free tier.</div>
-          <div class="frow">
-            <div class="fld" style="width:86px"><label>Ticker</label>
-              <input type="text" id="iTk" placeholder="SCHD" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')addPos()" /></div>
-            <div class="fld" style="width:105px"><label>Allocation %</label>
-              <input type="number" id="iAl" placeholder="25" min="0.1" max="100" step="0.1" /></div>
-            <div class="fld" style="width:115px"><label>DGR % / yr</label>
-              <input type="number" id="iDG" placeholder="e.g. 10" min="-20" max="60" step="0.1" /></div>
-            <div class="fld" style="width:115px"><label>Yield % (ETFs)</label>
-              <input type="number" id="iYl" placeholder="e.g. 3.5" min="0" max="30" step="0.01" title="Required for ETFs — Finnhub doesn't provide ETF yield data on the free tier" /></div>
-            <div class="fld" style="width:105px"><label>Shares (opt.)</label>
-              <input type="number" id="iSh" placeholder="100" min="0" step="0.001" /></div>
-            <div class="fld" style="width:115px"><label>Cost/Sh (opt.)</label>
-              <input type="number" id="iCo" placeholder="72.50" min="0" step="0.01" /></div>
-            <div style="display:flex;gap:8px;margin-top:auto;padding-bottom:1px">
-              <button class="btn bp" onclick="addPos()">＋ Add</button>
-              <button class="btn bo" onclick="loadDemo()">📋 Demo</button>
-            </div>
-          </div>
-          <div style="margin-top:14px">
-            <div class="abar"><div class="abar-fill" id="allocFill" style="width:0%"></div></div>
-            <div class="abar-lbl"><span>Allocation used</span><span class="av" id="allocPct">0%</span></div>
-          </div>
+    <!-- Budget hero -->
+    <div class="budget-hero">
+      <div>
+        <div class="budget-hero-lbl">My Monthly Investment Budget</div>
+        <div class="budget-input-wrap">
+          <span class="budget-prefix">$</span>
+          <input type="number" class="budget-input" id="budget" value="1000" min="1" step="50"
+            oninput="onBudgetChange()" placeholder="1,000" />
         </div>
-
-        <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <div class="ctitle" style="margin-bottom:0">Holdings</div>
-            <span class="ldr" id="tblLd" style="display:none"><span class="spin"></span> Loading…</span>
-          </div>
-          <div class="tw">
-            <table>
-              <thead><tr>
-                <th>Ticker</th><th>Name</th>
-                <th class="r">Alloc %</th><th class="r">Price</th><th class="r">Day %</th>
-                <th class="r">Shares</th><th class="r">Mkt Value</th><th class="r">Gain/Loss</th>
-                <th class="r">Yield % ✎</th><th class="r">DGR %/yr ✎</th><th class="r">Ann. Income</th><th></th>
-              </tr></thead>
-              <tbody id="hBody">
-                <tr><td colspan="12"><div class="empty"><div class="empty-icon">🌱</div>
-                  <p>Add your dividend stocks/ETFs above,<br>or click <strong>Demo</strong> to load a sample portfolio.</p>
-                </div></td></tr>
-              </tbody>
-            </table>
+        <div class="budget-tag">per month · <span id="budgetAnnual">$12,000 per year</span></div>
+        <div style="margin-top:14px">
+          <div class="abar"><div class="abar-fill" id="allocFill" style="width:0%"></div></div>
+          <div class="abar-lbl">
+            <span>Allocation used</span>
+            <span class="av" id="allocPct">0.0%</span>
           </div>
         </div>
       </div>
 
-      <!-- Right: metrics + ref -->
-      <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:14px">
-        <div class="card" style="padding:18px 16px">
-          <div class="ctitle" style="margin-bottom:2px">Portfolio Metrics</div>
-          <div class="csub" style="margin-bottom:14px">Weighted across all positions.</div>
+      <div class="budget-breakdown" id="budgetBreakdown">
+        <div class="budget-breakdown-title">Monthly breakdown</div>
+        <div class="bd-empty-tip">Add tickers below to see how your budget splits →</div>
+      </div>
+    </div>
 
-          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
-            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
-              <div class="bc-lbl" style="font-size:.68rem">Blended Yield</div>
-              <div class="bc-val pos" id="bYld" style="font-size:1.3rem">—</div>
-            </div>
-            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
-              <div class="bc-lbl" style="font-size:.68rem">Blended DGR</div>
-              <div class="bc-val" style="color:var(--accent);font-size:1.3rem" id="bDGR">—</div>
-            </div>
-            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
-              <div class="bc-lbl" style="font-size:.68rem">Total Value</div>
-              <div class="bc-val" style="color:var(--blue);font-size:1.3rem" id="bMktV">—</div>
-            </div>
-            <div class="bc" style="display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 14px">
-              <div class="bc-lbl" style="font-size:.68rem">Annual Income</div>
-              <div class="bc-val pos" style="font-size:1.3rem" id="bAnnI">—</div>
-            </div>
-          </div>
-
-          <button class="btn bp" style="width:100%;justify-content:center;font-size:.88rem;padding:11px" onclick="goToProj()">
-            Project My Retirement →
-          </button>
+    <!-- Add ticker form -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="ctitle">Add Holding</div>
+      <div class="csub" style="margin-bottom:14px">Enter each ticker, its allocation %, your expected DGR, and yield (required for ETFs — Finnhub doesn't provide ETF yields on free tier).</div>
+      <div class="frow">
+        <div class="fld" style="width:88px">
+          <label>Ticker</label>
+          <input type="text" id="iTk" placeholder="SCHD" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')addPos()" />
         </div>
-        <div class="card">
-          <div class="ctitle" style="font-size:.92rem;margin-bottom:11px">DGR Quick Reference</div>
-          <table style="width:100%;font-size:.83rem">
-            <tbody id="dgrRef">
-              <tr><td style="color:var(--sub);padding:3px 0">SCHD</td><td style="font-family:var(--mono);font-weight:700;color:var(--green);text-align:right">~11%</td></tr>
-              <tr><td style="color:var(--sub);padding:3px 0">COST</td><td style="font-family:var(--mono);font-weight:700;color:var(--green);text-align:right">~13%</td></tr>
-              <tr><td style="color:var(--sub);padding:3px 0">VIG</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~9%</td></tr>
-              <tr><td style="color:var(--sub);padding:3px 0">ABBV</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~8%</td></tr>
-              <tr><td style="color:var(--sub);padding:3px 0">MSFT</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~10%</td></tr>
-              <tr><td style="color:var(--sub);padding:3px 0">JNJ</td><td style="font-family:var(--mono);font-weight:700;color:var(--accent);text-align:right">~6%</td></tr>
-              <tr><td style="color:var(--sub);padding:3px 0">KO</td><td style="font-family:var(--mono);font-weight:700;color:var(--amber);text-align:right">~5%</td></tr>
-            </tbody>
-          </table>
-          <div style="font-size:.72rem;color:var(--muted);margin-top:9px;line-height:1.5">Enter your own conviction rate in the DGR column.</div>
+        <div class="fld" style="width:108px">
+          <label>Allocation %</label>
+          <input type="number" id="iAl" placeholder="35" min="0.1" max="100" step="0.1" />
+        </div>
+        <div class="fld" style="width:115px">
+          <label>Yield % / yr</label>
+          <input type="number" id="iYl" placeholder="3.5" min="0" max="30" step="0.01" />
+        </div>
+        <div class="fld" style="width:115px">
+          <label>DGR % / yr</label>
+          <input type="number" id="iDG" placeholder="10" min="-20" max="60" step="0.1" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:auto;padding-bottom:1px">
+          <button class="btn bp" onclick="addPos()">＋ Add</button>
+          <button class="btn bo" onclick="loadDemo()">📋 Demo</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ════════════════════════════════════
-       RETIREMENT PROJECTOR
-  ════════════════════════════════════ -->
+    <!-- Holdings table -->
+    <div class="card" style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div class="ctitle" style="margin-bottom:0">Holdings</div>
+        <span class="ldr" id="tblLd" style="display:none"><span class="spin"></span>&nbsp;Fetching prices…</span>
+      </div>
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th class="r">Alloc %</th>
+            <th class="r">Monthly $</th>
+            <th class="r">Live Price</th>
+            <th class="r">Day %</th>
+            <th class="r">Yield % ✎</th>
+            <th class="r">DGR % ✎</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="hBody">
+            <tr><td colspan="9"><div class="empty">
+              <div class="empty-icon">🌱</div>
+              <p>Add a ticker above, or click <strong>Demo</strong> to load a sample portfolio.</p>
+            </div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Portfolio summary -->
+    <div class="summary-strip" id="summaryStrip" style="display:none">
+      <div class="sc">
+        <div class="sc-lbl">Blended Yield</div>
+        <div class="sc-val pos" id="sYld">—</div>
+        <div class="sc-sub">Weighted by allocation</div>
+        <div class="sc-warn" id="sYldWarn"></div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Blended DGR</div>
+        <div class="sc-val" style="color:var(--accent)" id="sDGR">—</div>
+        <div class="sc-sub">Weighted by allocation</div>
+        <div class="sc-warn" id="sDGRWarn"></div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Monthly Investment</div>
+        <div class="sc-val" style="color:var(--blue)" id="sMo">—</div>
+        <div class="sc-sub" id="sMoSub">per month</div>
+      </div>
+      <div class="sc">
+        <div class="sc-lbl">Year-1 Est. Income</div>
+        <div class="sc-val pos" id="sY1">—</div>
+        <div class="sc-sub">at current yield</div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end">
+      <button class="btn bp2" style="font-size:1rem;padding:13px 32px" onclick="goToProj()">
+        Build My Retirement Plan →
+      </button>
+    </div>
+
+  </div><!-- /port pane -->
+
+  <!-- ════════════════════════════════
+       STEP 2 — RETIREMENT PROJECTOR
+  ════════════════════════════════ -->
   <div class="pane" id="pane-proj">
-    <div class="proj-layout">
+    <div class="proj-container">
 
-      <!-- Inputs -->
-      <div class="card proj-inputs">
-        <div class="ctitle">Projection Variables</div>
-        <div class="csub">Matches the spreadsheet model exactly — monthly compounding.</div>
-        <div id="fromPortBadge" style="display:none;margin-bottom:6px"><span class="fbadge">✓ Synced from portfolio</span></div>
+      <!-- LEFT: inputs -->
+      <div style="display:flex;flex-direction:column;gap:16px">
 
-        <!-- Starting Portfolio Size -->
-        <div class="ig">
-          <div class="ilbl"><span>Starting Portfolio Size ($)</span></div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-weight:700;font-size:1rem;color:var(--sub)">$</span>
-            <input type="number" id="pV" value="0" style="flex:1" oninput="sched()" />
+        <!-- Auto-calculated from portfolio (readonly) -->
+        <div class="auto-section">
+          <div class="auto-title">Auto-calculated from your portfolio</div>
+          <div class="auto-row"><span class="label">Monthly Contribution</span><span class="value" id="aContrib">—</span></div>
+          <div class="auto-row"><span class="label">Starting Portfolio Value</span><span class="value">$0 <span style="font-size:.72rem;color:var(--muted);font-weight:400">(fresh start)</span></span></div>
+          <div class="auto-row"><span class="label">Blended Dividend Yield</span><span class="value" id="aYld">—</span></div>
+          <div class="auto-row"><span class="label">Blended DGR / yr</span><span class="value" id="aDGR">—</span></div>
+          <div style="margin-top:10px">
+            <button class="btn bo bsm" onclick="goTab('port',document.querySelectorAll('.tab')[0])">← Edit Portfolio</button>
           </div>
         </div>
 
-        <!-- Starting Dividend Yield -->
-        <div class="ig">
-          <div class="ilbl"><span>Starting Dividend Yield (%)</span></div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input type="number" id="pYld" value="2.55" min="0" max="20" step="0.01" style="flex:1" oninput="sched()" />
-            <span style="font-weight:700;font-size:1rem;color:var(--sub)">%</span>
+        <!-- Required inputs -->
+        <div class="req-card">
+          <div class="req-title">Required Inputs</div>
+          <div class="req-sub">Fill in all three fields to generate your projection.</div>
+
+          <div class="req-field">
+            <label>Price Appreciation Rate / yr <span id="chk1"></span></label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <input type="number" id="rPG" placeholder="e.g. 7" min="0" max="20" step="0.5"
+                oninput="markFilled('rPG','chk1');tryCalc()" />
+              <span style="font-weight:700;color:var(--sub)">%</span>
+            </div>
+            <div class="hint">Historical US stock market avg ≈ 7–10% annually</div>
+          </div>
+
+          <div class="req-field">
+            <label>Annual Retirement Income Target <span id="chk2"></span></label>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-weight:700;color:var(--sub)">$</span>
+              <input type="number" id="rTG" placeholder="e.g. 60000" min="1000" step="1000"
+                oninput="markFilled('rTG','chk2');tryCalc()" />
+            </div>
+            <div class="hint">The annual dividend income you want to live off</div>
+          </div>
+
+          <div class="req-field">
+            <label>Years to Project <span id="chk3"></span></label>
+            <input type="number" id="rYR" placeholder="e.g. 30" min="1" max="50" step="1"
+              oninput="markFilled('rYR','chk3');tryCalc()" />
+            <div class="hint">How many years until (or past) retirement</div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="drip-row">
+            <div class="drip-info">
+              <div class="drip-name">DRIP — Reinvest Dividends</div>
+              <div class="drip-desc">Dividends automatically buy more shares each month</div>
+            </div>
+            <label class="tgl">
+              <input type="checkbox" id="rDR" checked onchange="tryCalc()" />
+              <div class="tgl-track"></div><div class="tgl-thumb"></div>
+            </label>
+          </div>
+
+          <div class="calc-btn-wrap">
+            <button class="btn bp" id="calcBtn" style="width:100%;justify-content:center;padding:13px;font-size:.95rem" onclick="runProj()" disabled>
+              Calculate My Retirement →
+            </button>
+            <div id="calcHint" style="font-size:.76rem;color:var(--amber);font-weight:600;margin-top:7px;text-align:center"></div>
           </div>
         </div>
 
-        <!-- Starting Share Price (normalized) -->
-        <div class="ig">
-          <div class="ilbl"><span>Starting Share Price ($)</span></div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-weight:700;font-size:1rem;color:var(--sub)">$</span>
-            <input type="number" id="pSP" value="100" min="1" step="1" style="flex:1" oninput="sched()" />
-          </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Monthly Contribution -->
-        <div class="ig">
-          <div class="ilbl"><span>Monthly Contribution</span><span class="vb" id="lMo">$2,000</span></div>
-          <input type="range" id="rMo" min="0" max="10000" step="100" value="2000"
-            oninput="document.getElementById('lMo').textContent='$'+parseInt(this.value).toLocaleString();sched()" />
-          <div class="rbounds"><span>$0</span><span>$10,000</span></div>
-        </div>
-
-        <!-- Lump Sum toggle -->
-        <div class="tgl-row">
-          <div class="tgl-info">
-            <div class="tgl-name">Lump Sum (vs Monthly)</div>
-            <div class="tgl-desc">One-time addition instead of monthly</div>
-          </div>
-          <label class="tgl">
-            <input type="checkbox" id="rLS" onchange="sched()" />
-            <div class="tgl-track"></div><div class="tgl-thumb"></div>
-          </label>
-        </div>
-
-        <div class="divider"></div>
-
-        <!-- Price Growth Rate -->
-        <div class="ig">
-          <div class="ilbl"><span>Price Growth Rate / yr</span><span class="vb" id="lPG">7.0%</span></div>
-          <input type="range" id="rPG" min="0" max="15" step="0.5" value="7"
-            oninput="document.getElementById('lPG').textContent=parseFloat(this.value).toFixed(1)+'%';sched()" />
-          <div class="rbounds"><span>0%</span><span>15%</span></div>
-        </div>
-
-        <!-- Dividend Growth Rate -->
-        <div class="ig">
-          <div class="ilbl"><span>Dividend Growth Rate / yr</span><span class="vb" id="lDG">12.0%</span></div>
-          <input type="range" id="rDG" min="0" max="20" step="0.5" value="12"
-            oninput="document.getElementById('lDG').textContent=parseFloat(this.value).toFixed(1)+'%';sched()" />
-          <div class="rbounds"><span>0%</span><span>20%</span></div>
-        </div>
-
-        <!-- Years -->
-        <div class="ig">
-          <div class="ilbl"><span>Years to Project</span><span class="vb" id="lYr">30 yrs</span></div>
-          <input type="range" id="rYr" min="5" max="45" step="1" value="30"
-            oninput="document.getElementById('lYr').textContent=this.value+' yrs';sched()" />
-          <div class="rbounds"><span>5</span><span>45</span></div>
-        </div>
-
-        <!-- Target -->
-        <div class="ig">
-          <div class="ilbl"><span>Retirement Income Target / yr</span><span class="vb" id="lTg">$60,000</span></div>
-          <input type="range" id="rTg" min="10000" max="300000" step="5000" value="60000"
-            oninput="document.getElementById('lTg').textContent='$'+parseInt(this.value).toLocaleString();sched()" />
-          <div class="rbounds"><span>$10K</span><span>$300K</span></div>
-        </div>
-
-        <button class="btn bo" style="width:100%;justify-content:center" onclick="goTab('port',document.querySelectorAll('.tab')[0])">
-          ← Back to Portfolio
-        </button>
       </div>
 
-      <!-- Results -->
-      <div>
+      <!-- RIGHT: results -->
+      <div class="results-area">
 
-        <!-- Highlights -->
-        <div class="hls">
-          <div class="hl">
-            <div class="hl-val pos" id="hBE">—</div>
-            <div class="hl-lbl">🎯 Year You Hit Target</div>
-          </div>
-          <div class="hl">
-            <div class="hl-val" style="color:var(--accent)" id="hFI_DR">—</div>
-            <div class="hl-lbl">Annual Income (DRIP)</div>
-          </div>
-          <div class="hl">
-            <div class="hl-val" style="color:var(--blue)" id="hFI_ND">—</div>
-            <div class="hl-lbl">Annual Income (No DRIP)</div>
-          </div>
-          <div class="hl">
-            <div class="hl-val" style="color:var(--purp)" id="hFV">—</div>
-            <div class="hl-lbl">Portfolio Value at End</div>
-          </div>
+        <div id="notReady" class="not-ready">
+          <div class="not-ready-icon">📊</div>
+          <p>Fill in the three required fields on the left<br>and click <strong>Calculate</strong> to see your projection.</p>
         </div>
 
-        <!-- Legend -->
-        <div style="display:flex;gap:18px;margin-bottom:12px;padding:0 2px;flex-wrap:wrap">
-          <span class="legend-pill"><span class="lp-dot" style="background:var(--accent)"></span>DRIP (reinvested)</span>
-          <span class="legend-pill"><span class="lp-dot" style="background:var(--blue)"></span>No DRIP (income paid out)</span>
-          <span class="legend-pill"><span class="lp-dot" style="background:var(--amber);opacity:.7"></span>Retirement target</span>
-          <span style="font-size:.75rem;color:var(--muted);margin-left:auto;align-self:center">📊 Monthly model · Annual compounding via (1+r)^(1/12)</span>
-        </div>
+        <div id="resultsWrap" style="display:none">
 
-        <!-- Chart -->
-        <div class="card" style="margin-bottom:14px">
-          <div class="ch-wrap"><canvas id="pjCvs"></canvas></div>
-        </div>
+          <div class="highlights" style="margin-bottom:16px">
+            <div class="hl">
+              <div class="hl-val pos" id="hBE">—</div>
+              <div class="hl-lbl">🎯 Year You Hit Target</div>
+            </div>
+            <div class="hl">
+              <div class="hl-val drip-col" id="hFI_DR">—</div>
+              <div class="hl-lbl">Annual Income (DRIP)</div>
+            </div>
+            <div class="hl">
+              <div class="hl-val nodrip-col" id="hFI_ND">—</div>
+              <div class="hl-lbl">Annual Income (No DRIP)</div>
+            </div>
+          </div>
 
-        <!-- Year-by-year table -->
-        <div class="card">
-          <div style="font-family:'Fraunces',serif;font-size:.98rem;font-weight:600;margin-bottom:13px;letter-spacing:-.02em">Year-by-Year Breakdown — DRIP vs No DRIP</div>
-          <div class="pj-scroll tw">
-            <table>
-              <thead>
-                <tr>
+          <div class="legend" style="padding:0 2px">
+            <span class="lp"><span class="lp-dot" style="background:var(--accent)"></span>DRIP (reinvested)</span>
+            <span class="lp"><span class="lp-dot" style="background:var(--blue)"></span>No DRIP (paid out)</span>
+            <span class="lp"><span class="lp-dot" style="background:var(--amber)"></span>Target income</span>
+            <span style="font-size:.72rem;color:var(--muted);margin-left:auto;align-self:center">Monthly compounding · (1+r)^(1/12)</span>
+          </div>
+
+          <div class="card" style="margin-bottom:14px">
+            <div class="ch-wrap"><canvas id="pjCvs"></canvas></div>
+          </div>
+
+          <div class="card">
+            <div style="font-family:'Fraunces',serif;font-size:.98rem;font-weight:600;margin-bottom:13px;letter-spacing:-.02em">
+              Year-by-Year Breakdown — DRIP vs No DRIP
+            </div>
+            <div class="pj-scroll tw">
+              <table>
+                <thead><tr>
                   <th>Year</th>
                   <th class="r">Share Price</th>
-                  <th class="r">Div Yield</th>
-                  <th class="r">Mo. Div/Sh</th>
+                  <th class="r">Div/Sh (mo)</th>
                   <th class="r" style="color:var(--blue)">Shares (No DRIP)</th>
                   <th class="r" style="color:var(--accent)">Shares (DRIP)</th>
                   <th class="r" style="color:var(--blue)">Mo. Income (No DRIP)</th>
@@ -491,55 +576,58 @@
                   <th class="r" style="color:var(--accent)">Ann. Income (DRIP)</th>
                   <th class="r" style="color:var(--blue)">Value (No DRIP)</th>
                   <th class="r" style="color:var(--accent)">Value (DRIP)</th>
+                  <th class="r">Contrib/yr</th>
                   <th class="r">Total Invested</th>
-                </tr>
-              </thead>
-              <tbody id="pjBody"></tbody>
-            </table>
+                </tr></thead>
+                <tbody id="pjBody"></tbody>
+              </table>
+            </div>
           </div>
-        </div>
-
+        </div><!-- /resultsWrap -->
       </div>
     </div>
-  </div>
+  </div><!-- /proj pane -->
 
-</div>
+</div><!-- /pg -->
 
 <script>
-/* ══════════════════════════════════
+/* ═══════════════════════════════════════
    STATE
-══════════════════════════════════ */
+═══════════════════════════════════════ */
 let KEY = localStorage.getItem('dg_key') || '';
+// POS: [{ticker, alloc, manYld, dgr}]
 let POS = JSON.parse(localStorage.getItem('dg_pos') || '[]');
-let QD  = {};
-let pjChart = null, schedTimer = null;
+let QD  = {};   // ticker → enriched Finnhub quote
+let pjChart = null;
 
-/* ══════════════════════════════════
+/* ═══════════════════════════════════════
    INIT
-══════════════════════════════════ */
+═══════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  renderTbl(); updateBlend(); runProj();
-  // Never auto-fetch on load — user clicks Refresh explicitly
+  renderTbl();
+  updateBlend();
   if (!KEY) openModal();
 });
 
-/* ══════════════════════════════════
+/* ═══════════════════════════════════════
    TABS
-══════════════════════════════════ */
+═══════════════════════════════════════ */
 function goTab(id, btn) {
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById('pane-' + id).classList.add('on');
   btn.classList.add('on');
 }
+
 function goToProj() {
-  syncProj();
+  syncProjInputs();
   goTab('proj', document.querySelectorAll('.tab')[1]);
+  tryCalc();
 }
 
-/* ══════════════════════════════════
+/* ═══════════════════════════════════════
    MODAL
-══════════════════════════════════ */
+═══════════════════════════════════════ */
 function openModal()  { document.getElementById('ovl').classList.add('on'); document.getElementById('apiIn').value = KEY; }
 function closeModal() { document.getElementById('ovl').classList.remove('on'); }
 function saveKey() {
@@ -549,441 +637,489 @@ function saveKey() {
   if (KEY && POS.length) doRefresh();
 }
 
-/* ══════════════════════════════════
-   API — Finnhub (free, 60 calls/min)
-   Quote:   GET /api/v1/quote?symbol=X&token=KEY  → {c,d,dp,h,l,o,pc}
-   Profile: GET /api/v1/stock/profile2?symbol=X&token=KEY → {name,...}
-   Metrics: GET /api/v1/stock/metric?symbol=X&metric=all&token=KEY
-              → metric.currentDividendYieldTTM (decimal, e.g. 0.035)
-   One call per ticker (no batch endpoint), but 60/min is more than enough.
-══════════════════════════════════ */
-const FH = 'https://finnhub.io/api/v1';
+/* ═══════════════════════════════════════
+   ERROR BANNER
+═══════════════════════════════════════ */
+function showErr(msg) {
+  document.getElementById('errMsg').textContent = msg;
+  document.getElementById('errBanner').style.display = 'flex';
+}
+function hideErr() { document.getElementById('errBanner').style.display = 'none'; }
 
+/* ═══════════════════════════════════════
+   FINNHUB API
+   3 calls per ticker: /quote + /stock/profile2 + /stock/metric
+   60 calls/min free — stagger 120ms apart to avoid burst
+═══════════════════════════════════════ */
+const FH = 'https://finnhub.io/api/v1';
 async function fhGet(path) {
   const r = await fetch(`${FH}${path}&token=${KEY}`);
   if (!r.ok) throw new Error('Finnhub ' + r.status);
   return r.json();
 }
-
-// Fetch quote + name + dividend yield for one ticker
-async function fetchTicker(tk) {
+async function fetchOneTicker(tk) {
   const [q, p, m] = await Promise.all([
     fhGet(`/quote?symbol=${tk}`),
     fhGet(`/stock/profile2?symbol=${tk}`),
     fhGet(`/stock/metric?symbol=${tk}&metric=all`),
   ]);
+  // Finnhub returns currentDividendYieldTTM as a PERCENTAGE (e.g. 3.5 = 3.5%)
+  const rawYld = m?.metric?.currentDividendYieldTTM ?? null;
+  const yldDec = rawYld != null ? rawYld / 100 : null;
   return {
-    symbol:          tk,
-    price:           q.c   || null,
-    change:          q.d   || null,
-    changesPercentage: q.dp || null,
-    name:            p.name || tk,
-    // TTM yield from Finnhub metrics — returned as PERCENTAGE (e.g. 3.5 = 3.5%), divide by 100
-    divYieldTTM:     m?.metric?.currentDividendYieldTTM != null
-                       ? m.metric.currentDividendYieldTTM / 100 : null,
-    // Annual div per share = price × TTM yield (now a proper decimal)
-    annualDiv:       (q.c && m?.metric?.currentDividendYieldTTM != null)
-                       ? q.c * (m.metric.currentDividendYieldTTM / 100) : null,
+    symbol:    tk,
+    price:     q.c  || null,
+    change:    q.d  || null,
+    changePct: q.dp || null,
+    name:      p.name || tk,
+    apiYld:    yldDec,   // decimal (e.g. 0.035)
   };
 }
-
-// Fetch all tickers in parallel (throttled to avoid burst)
 async function getQuotes(tks) {
   if (!tks.length) return {};
-  // Small stagger so we don't fire 10 triples simultaneously
-  const results = await Promise.all(tks.map((tk, i) =>
-    new Promise(res => setTimeout(() => fetchTicker(tk).then(res).catch(() => res({symbol:tk})), i * 120))
-  ));
+  const results = await Promise.all(
+    tks.map((tk, i) => new Promise(res =>
+      setTimeout(() =>
+        fetchOneTicker(tk).then(res).catch(() => res({ symbol: tk })),
+      i * 130)
+    ))
+  );
   const m = {};
   results.forEach(r => { if (r.symbol) m[r.symbol] = r; });
   return m;
 }
 
-// TTM annual dividend per share from our enriched quote object
-function ttm(q) { return (q && q.annualDiv > 0) ? q.annualDiv : null; }
-
-/* ══════════════════════════════════
-   REFRESH
-══════════════════════════════════ */
+/* ═══════════════════════════════════════
+   REFRESH PRICES
+═══════════════════════════════════════ */
 async function doRefresh() {
   if (!KEY) { openModal(); return; }
   if (!POS.length) return;
   showEl('ldMsg'); hideEl('liveInd'); showEl('tblLd');
   try {
     QD = await getQuotes(POS.map(p => p.ticker));
-    hideEl('ldMsg'); showEl('liveInd');
+    hideEl('ldMsg'); showEl('liveInd'); hideErr();
   } catch(e) {
     hideEl('ldMsg');
-    showErr('Finnhub returned: ' + e.message + '. Check your API key at finnhub.io');
+    showErr('Finnhub: ' + e.message + ' — check your API key at finnhub.io');
   } finally {
     hideEl('tblLd');
     renderTbl(); updateBlend();
   }
 }
 
-/* ══════════════════════════════════
-   POSITIONS
-══════════════════════════════════ */
+/* ═══════════════════════════════════════
+   BUDGET
+═══════════════════════════════════════ */
+function getBudget() { return parseFloat(document.getElementById('budget').value) || 0; }
+
+function onBudgetChange() {
+  const mo = getBudget();
+  document.getElementById('budgetAnnual').textContent = '$' + f0(mo * 12) + ' per year';
+  renderTbl();
+  updateBlend();
+}
+
+/* ═══════════════════════════════════════
+   ADD / DELETE / EDIT
+═══════════════════════════════════════ */
 function addPos() {
-  const tk = (document.getElementById('iTk').value||'').trim().toUpperCase();
+  const tk = (document.getElementById('iTk').value || '').trim().toUpperCase();
   if (!tk) { document.getElementById('iTk').focus(); return; }
-  const al = parseFloat(document.getElementById('iAl').value)||0;
-  const dg = document.getElementById('iDG').value.trim();
+  const al = parseFloat(document.getElementById('iAl').value) || 0;
   const yl = document.getElementById('iYl').value.trim();
-  const sh = parseFloat(document.getElementById('iSh').value)||0;
-  const co = parseFloat(document.getElementById('iCo').value)||0;
+  const dg = document.getElementById('iDG').value.trim();
   const entry = {
-    ticker:tk, alloc:al,
-    dgr:  dg!==''?parseFloat(dg):null,
-    manYld: yl!==''?parseFloat(yl)/100:null,  // store as decimal
-    shares:sh, avgCost:co
+    ticker: tk,
+    alloc:  al,
+    manYld: yl !== '' ? parseFloat(yl) / 100 : null,  // store as decimal
+    dgr:    dg !== '' ? parseFloat(dg)       : null,
   };
-  const i = POS.findIndex(p=>p.ticker===tk);
-  if (i>=0) POS[i]=entry; else POS.push(entry);
+  const i = POS.findIndex(p => p.ticker === tk);
+  if (i >= 0) POS[i] = entry; else POS.push(entry);
   savePOS();
-  ['iTk','iAl','iDG','iYl','iSh','iCo'].forEach(id=>document.getElementById(id).value='');
+  ['iTk','iAl','iYl','iDG'].forEach(id => document.getElementById(id).value = '');
   renderTbl(); updateBlend();
   if (KEY) {
     showEl('tblLd');
-    getQuotes([tk]).then(q=>{Object.assign(QD,q);hideEl('tblLd');renderTbl();updateBlend();}).catch(e=>{hideEl('tblLd');showErr('Finnhub: '+e.message);});
+    getQuotes([tk])
+      .then(q  => { Object.assign(QD, q); hideEl('tblLd'); renderTbl(); updateBlend(); })
+      .catch(e => { hideEl('tblLd'); showErr('Finnhub: ' + e.message); });
   }
 }
-function delPos(tk) {
-  POS=POS.filter(p=>p.ticker!==tk);delete QD[tk];
-  savePOS();renderTbl();updateBlend();
-}
-function setAlloc(tk,v)  { setF(tk,'alloc',   v!==''?parseFloat(v):0); }
-function setDgr(tk,v)    { setF(tk,'dgr',     v!==''?parseFloat(v):null); }
-function setManYld(tk,v) { setF(tk,'manYld',  v!==''?parseFloat(v)/100:null); }
-function setShares(tk,v) { setF(tk,'shares',  v!==''?parseFloat(v):0); }
-function setF(tk,f,v) {
-  const i=POS.findIndex(p=>p.ticker===tk);if(i<0)return;
-  POS[i][f]=v;savePOS();updateBlend();updateAllocBar();
-}
-function savePOS(){localStorage.setItem('dg_pos',JSON.stringify(POS));}
 
-function loadDemo(){
-  POS=[
-    {ticker:'SCHD',alloc:35,dgr:11, manYld:0.035, shares:150,avgCost:72.50},
-    {ticker:'COST',alloc:10,dgr:13, manYld:null,  shares:5,  avgCost:680  },
-    {ticker:'VIG', alloc:15,dgr:9,  manYld:0.018, shares:40, avgCost:165  },
-    {ticker:'KO',  alloc:10,dgr:5,  manYld:null,  shares:60, avgCost:58   },
-    {ticker:'ABBV',alloc:10,dgr:8,  manYld:null,  shares:25, avgCost:148  },
-    {ticker:'JNJ', alloc:10,dgr:6,  manYld:null,  shares:20, avgCost:155  },
-    {ticker:'MSFT',alloc:5, dgr:10, manYld:null,  shares:8,  avgCost:320  },
-    {ticker:'SPY', alloc:5, dgr:null,manYld:0.013,shares:5,  avgCost:480  },
+function delPos(tk) {
+  POS = POS.filter(p => p.ticker !== tk);
+  delete QD[tk];
+  savePOS(); renderTbl(); updateBlend();
+}
+
+function setAlloc(tk, v) { setF(tk, 'alloc',  v !== '' ? parseFloat(v)       : 0);    }
+function setYld(tk, v)   { setF(tk, 'manYld', v !== '' ? parseFloat(v) / 100 : null); }
+function setDgr(tk, v)   { setF(tk, 'dgr',    v !== '' ? parseFloat(v)       : null); }
+
+function setF(tk, f, v) {
+  const i = POS.findIndex(p => p.ticker === tk);
+  if (i < 0) return;
+  POS[i][f] = v;
+  savePOS(); renderTbl(); updateBlend();
+}
+function savePOS() { localStorage.setItem('dg_pos', JSON.stringify(POS)); }
+
+function loadDemo() {
+  POS = [
+    { ticker:'SCHD', alloc:35, manYld:0.035, dgr:11  },
+    { ticker:'COST', alloc:10, manYld:null,  dgr:13  },
+    { ticker:'VIG',  alloc:15, manYld:0.018, dgr:9   },
+    { ticker:'KO',   alloc:10, manYld:null,  dgr:5   },
+    { ticker:'ABBV', alloc:10, manYld:null,  dgr:8   },
+    { ticker:'JNJ',  alloc:10, manYld:null,  dgr:6   },
+    { ticker:'MSFT', alloc:5,  manYld:null,  dgr:10  },
+    { ticker:'SPY',  alloc:5,  manYld:0.013, dgr:null},
   ];
-  savePOS();renderTbl();updateBlend();
+  savePOS(); renderTbl(); updateBlend();
   if (KEY) doRefresh();
 }
 
-/* ══════════════════════════════════
-   RENDER HOLDINGS TABLE
-══════════════════════════════════ */
+/* ═══════════════════════════════════════
+   RENDER TABLE
+═══════════════════════════════════════ */
 function renderTbl() {
-  const tb=document.getElementById('hBody');
-  if (!POS.length){
-    tb.innerHTML=`<tr><td colspan="12"><div class="empty"><div class="empty-icon">🌱</div><p>Add your dividend stocks/ETFs above,<br>or click <strong>Demo</strong> to load a sample portfolio.</p></div></td></tr>`;
-    updateAllocBar();return;
+  const tb     = document.getElementById('hBody');
+  const budget = getBudget();
+
+  if (!POS.length) {
+    tb.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🌱</div><p>Add a ticker above, or click <strong>Demo</strong> to load a sample portfolio.</p></div></td></tr>`;
+    updateAllocBar();
+    renderBudgetBreakdown();
+    return;
   }
-  tb.innerHTML=POS.map(p=>{
-    const q=QD[p.ticker]||{};
-    const price=q.price, day=q.changesPercentage;
-    // Effective yield: manual entry wins over API (ETFs need manual)
-    const apiYld  = (q.price && q.annualDiv) ? q.annualDiv/q.price : null;
+
+  tb.innerHTML = POS.map(p => {
+    const q       = QD[p.ticker] || {};
+    const price   = q.price;
+    const day     = q.changePct;
+    const apiYld  = q.apiYld || null;
     const effYld  = p.manYld != null ? p.manYld : apiYld;
-    const annDiv  = (price && effYld) ? price * effYld : null;
-    const mktV    = (price && p.shares) ? price*p.shares : null;
-    const basis   = (p.shares && p.avgCost) ? p.shares*p.avgCost : null;
-    const gain    = (mktV!=null && basis!=null) ? mktV-basis : null;
-    const gainP   = (gain!=null && basis) ? gain/basis : null;
-    const annI    = (annDiv && p.shares) ? annDiv*p.shares : null;
-    const nm      = (q.name && q.name!==p.ticker) ? trunc(q.name,22) : '—';
-    const yldDisp = p.manYld != null ? p.manYld*100 : (apiYld != null ? apiYld*100 : '');
-    const yldSrc  = p.manYld != null ? '' : (apiYld != null ? ' title="From API"' : '');
+    const moAmt   = budget * (p.alloc || 0) / 100;
+    const nm      = (q.name && q.name !== p.ticker) ? trunc(q.name, 22) : '—';
+    const yldDisp = p.manYld != null ? fn(p.manYld * 100, 2) : (apiYld != null ? fn(apiYld * 100, 2) : '');
+    const yldMissing = effYld == null;
+    const dgrMissing = p.dgr  == null;
+
     return `<tr>
       <td><span class="tkbadge">${p.ticker}</span></td>
       <td class="nmc">${nm}</td>
-      <td class="r"><input class="ti" style="width:70px" type="number" value="${p.alloc||''}" placeholder="—" min="0.1" max="100" step="0.1" onchange="setAlloc('${p.ticker}',this.value)"/></td>
-      <td class="r">${price!=null?'$'+fn(price):'<span class="dim">fetching…</span>'}</td>
-      <td class="r ${day>0?'pos':day<0?'neg':''}">${day!=null?(day>0?'+':'')+fn(day)+'%':'<span class="dim">—</span>'}</td>
-      <td class="r"><input class="ti" style="width:88px" type="number" value="${p.shares||''}" placeholder="—" min="0" step="0.001" onchange="setShares('${p.ticker}',this.value)"/></td>
-      <td class="r">${mktV!=null?'$'+f0(mktV):'<span class="dim">—</span>'}</td>
-      <td class="r ${gain>0?'pos':gain<0?'neg':''}">${gain!=null?(gain>=0?'▲ ':'▼ ')+'$'+f0(Math.abs(gain))+' ('+fn(gainP*100,1)+'%)':'<span class="dim">—</span>'}</td>
-      <td class="r"><input class="ti" style="width:78px" type="number" value="${yldDisp!==''?fn(yldDisp,2):''}" placeholder="enter %"${yldSrc} min="0" max="30" step="0.01" onchange="setManYld('${p.ticker}',this.value)" title="Enter yield % manually — required for ETFs"/></td>
-      <td class="r"><input class="ti" style="width:74px" type="number" value="${p.dgr!=null?p.dgr:''}" placeholder="—" min="-20" max="60" step="0.1" onchange="setDgr('${p.ticker}',this.value)" title="Expected annual dividend growth rate for ${p.ticker}"/></td>
-      <td class="r pos">${annI!=null?'$'+f0(annI):'<span class="dim">—</span>'}</td>
+      <td class="r">
+        <input class="ti" style="width:68px" type="number" value="${p.alloc || ''}" placeholder="—"
+          min="0.1" max="100" step="0.1" onchange="setAlloc('${p.ticker}',this.value)" />
+      </td>
+      <td class="r">
+        <span class="mo-contrib">${budget > 0 ? '$' + fn(moAmt) : '—'}</span>
+        ${budget > 0 ? '<span class="dim" style="margin-left:4px">/mo</span>' : ''}
+      </td>
+      <td class="r">${price != null ? '$' + fn(price) : '<span class="dim">fetching…</span>'}</td>
+      <td class="r ${day > 0 ? 'pos' : day < 0 ? 'neg' : ''}">${day != null ? (day > 0 ? '+' : '') + fn(day) + '%' : '<span class="dim">—</span>'}</td>
+      <td class="r">
+        <input class="ti ${yldMissing ? 'missing' : ''}" style="width:78px" type="number"
+          value="${yldDisp}" placeholder="${yldMissing ? 'required' : '—'}"
+          min="0" max="30" step="0.01"
+          onchange="setYld('${p.ticker}',this.value)"
+          title="Annual dividend yield % — enter manually for ETFs" />
+      </td>
+      <td class="r">
+        <input class="ti ${dgrMissing ? 'missing' : ''}" style="width:74px" type="number"
+          value="${p.dgr != null ? p.dgr : ''}" placeholder="${dgrMissing ? 'enter' : '—'}"
+          min="-20" max="60" step="0.1"
+          onchange="setDgr('${p.ticker}',this.value)"
+          title="Expected annual dividend growth rate for ${p.ticker}" />
+      </td>
       <td><button class="btn bd" onclick="delPos('${p.ticker}')">✕</button></td>
     </tr>`;
   }).join('');
+
   updateAllocBar();
+  renderBudgetBreakdown();
 }
 
-function updateAllocBar(){
-  const total=POS.reduce((s,p)=>s+(p.alloc||0),0);
-  document.getElementById('allocFill').style.width=Math.min(total,100)+'%';
-  const sp=document.getElementById('allocPct');
-  sp.textContent=total.toFixed(1)+'%';
-  sp.className='av '+(total>101?'err':total>99.5?'ok':'warn');
+function updateAllocBar() {
+  const total = POS.reduce((s, p) => s + (p.alloc || 0), 0);
+  document.getElementById('allocFill').style.width = Math.min(total, 100) + '%';
+  const sp = document.getElementById('allocPct');
+  sp.textContent = total.toFixed(1) + '%';
+  sp.className = 'av ' + (total > 101 ? 'err' : total > 99.5 ? 'ok' : 'warn');
 }
 
-/* ══════════════════════════════════
+function renderBudgetBreakdown() {
+  const budget = getBudget();
+  const el = document.getElementById('budgetBreakdown');
+  if (!POS.length || !budget) {
+    el.innerHTML = '<div class="budget-breakdown-title">Monthly breakdown</div><div class="bd-empty-tip">Add tickers below to see how your budget splits →</div>';
+    return;
+  }
+  const rows = POS.map(p => {
+    const moAmt = budget * (p.alloc || 0) / 100;
+    return `<div class="bd-row">
+      <span><span class="tkb-w">${p.ticker}</span></span>
+      <span><span class="amt">$${fn(moAmt)}</span><span class="pct">${(p.alloc || 0).toFixed(1)}%</span></span>
+    </div>`;
+  }).join('');
+  el.innerHTML = '<div class="budget-breakdown-title">Monthly breakdown</div>' + rows;
+}
+
+/* ═══════════════════════════════════════
    BLENDED METRICS
-══════════════════════════════════ */
-function updateBlend(){
-  let totAlloc=0,wYld=0,yldA=0,wDGR=0,dgrA=0,totMktV=0,totAnnI=0;
-  POS.forEach(p=>{
-    const q=QD[p.ticker]||{},al=p.alloc||0;
-    const apiYld = (q.price && q.annualDiv) ? q.annualDiv/q.price : null;
-    const effYld = p.manYld != null ? p.manYld : apiYld;
-    const annDiv = (q.price && effYld) ? q.price * effYld : null;
-    totAlloc+=al;
-    if(effYld!=null)  {wYld+=effYld*al; yldA+=al;}
-    if(p.dgr!=null)   {wDGR+=p.dgr*al;  dgrA+=al;}
-    if(q.price&&p.shares)  totMktV+=q.price*p.shares;
-    if(annDiv&&p.shares)   totAnnI+=annDiv*p.shares;
-  });
-  const bYld=yldA>0?wYld/yldA:null;
-  const bDGR=dgrA>0?wDGR/dgrA:null;
-  // Show coverage warning if some positions have no yield
-  const missing=POS.filter(p=>{
-    const q=QD[p.ticker]||{};
-    const apiYld=(q.price&&q.annualDiv)?q.annualDiv/q.price:null;
-    return p.manYld==null && apiYld==null;
-  });
-  const warn = missing.length>0 ? ` <span style="color:var(--amber);font-size:.7rem">(${missing.map(p=>p.ticker).join(', ')} missing yield)</span>` : '';
-  const yldEl=document.getElementById('bYld');
-  if(yldEl) yldEl.innerHTML=(bYld!=null?fp(bYld):'—')+warn;
-  setText('bDGR', bDGR!=null?'+'+fn(bDGR,1)+'%/yr':'—');
-  setText('bMktV',totMktV>0?'$'+f0(totMktV):'—');
-  setText('bAnnI',totAnnI>0?'$'+f0(totAnnI):'—');
+═══════════════════════════════════════ */
+function getEffYld(p) {
+  const q = QD[p.ticker] || {};
+  return p.manYld != null ? p.manYld : (q.apiYld || null);
 }
 
-/* ══════════════════════════════════
-   SYNC PROJECTOR FROM PORTFOLIO
-══════════════════════════════════ */
-function syncProj(){
-  let totMktV=0,totAnnI=0,wDGR=0,dgrA=0,wYld=0,yldA=0;
-  POS.forEach(p=>{
-    const q=QD[p.ticker]||{},al=p.alloc||0;
-    const apiYld=(q.price&&q.annualDiv)?q.annualDiv/q.price:null;
-    const effYld=p.manYld!=null?p.manYld:apiYld;
-    const annDiv=(q.price&&effYld)?q.price*effYld:null;
-    if(q.price&&p.shares) totMktV+=q.price*p.shares;
-    if(annDiv&&p.shares)  totAnnI+=annDiv*p.shares;
-    if(p.dgr!=null&&al)  {wDGR+=p.dgr*al;dgrA+=al;}
-    if(effYld!=null&&al) {wYld+=effYld*al;yldA+=al;}
-  });
-  const bDGR=dgrA>0?wDGR/dgrA:null;
-  const bYld=yldA>0?wYld/yldA:null;
-
-  if(totMktV>0) document.getElementById('pV').value=Math.round(totMktV);
-  if(bYld!=null) document.getElementById('pYld').value=fn(bYld*100,2);
-
-  if(bDGR!=null){
-    const c=Math.min(20,Math.max(0,Math.round(bDGR*2)/2));
-    document.getElementById('rDG').value=c;
-    document.getElementById('lDG').textContent=c.toFixed(1)+'%';
+function updateBlend() {
+  if (!POS.length) {
+    document.getElementById('summaryStrip').style.display = 'none';
+    return;
   }
 
-  const badge=document.getElementById('fromPortBadge');
-  badge.style.display=(totMktV>0||bDGR!=null)?'block':'none';
-  sched();
+  let totAlloc = 0, wYld = 0, yldA = 0, wDGR = 0, dgrA = 0;
+  const missingYld = [], missingDGR = [];
+
+  POS.forEach(p => {
+    const al   = p.alloc || 0;
+    const yld  = getEffYld(p);
+    totAlloc  += al;
+    if (yld != null)   { wYld += yld   * al; yldA += al; } else missingYld.push(p.ticker);
+    if (p.dgr != null) { wDGR += p.dgr * al; dgrA += al; } else missingDGR.push(p.ticker);
+  });
+
+  const bYld = yldA > 0 ? wYld / yldA : null;
+  const bDGR = dgrA > 0 ? wDGR / dgrA : null;
+
+  const budget = getBudget();
+  // Year-1 estimated income: first year contributions × blended yield
+  // Rough estimate: avg portfolio through year 1 = 6 months of contributions
+  const yr1Portfolio = budget * 6;
+  const yr1Income    = (bYld != null) ? yr1Portfolio * bYld : null;
+
+  setText('sYld',  bYld != null ? fn(bYld * 100, 2) + '%' : '—');
+  setText('sDGR',  bDGR != null ? '+' + fn(bDGR, 1) + '% / yr' : '—');
+  setText('sMo',   budget > 0   ? '$' + f0(budget) : '—');
+  setText('sMoSub', budget > 0  ? '$' + f0(budget * 12) + ' per year' : 'per month');
+  setText('sY1',   yr1Income != null ? '~$' + f0(yr1Income) : '—');
+
+  setText('sYldWarn', missingYld.length ? '⚠ ' + missingYld.join(', ') + ' missing yield' : '');
+  setText('sDGRWarn', missingDGR.length ? '⚠ ' + missingDGR.join(', ') + ' missing DGR'  : '');
+
+  document.getElementById('summaryStrip').style.display = POS.length ? 'grid' : 'none';
 }
 
-/* ══════════════════════════════════
+/* ═══════════════════════════════════════
+   SYNC AUTO-FILLED PROJECTOR FIELDS
+═══════════════════════════════════════ */
+function syncProjInputs() {
+  const budget = getBudget();
+  let totAlloc = 0, wYld = 0, yldA = 0, wDGR = 0, dgrA = 0;
+  POS.forEach(p => {
+    const al = p.alloc || 0, yld = getEffYld(p);
+    totAlloc += al;
+    if (yld != null)   { wYld += yld   * al; yldA += al; }
+    if (p.dgr != null) { wDGR += p.dgr * al; dgrA += al; }
+  });
+  const bYld = yldA > 0 ? wYld / yldA : null;
+  const bDGR = dgrA > 0 ? wDGR / dgrA : null;
+
+  setText('aContrib', budget > 0 ? '$' + f0(budget) + ' / mo ($' + f0(budget * 12) + ' / yr)' : '—');
+  setText('aYld',     bYld != null ? fn(bYld * 100, 2) + '%' : '⚠ Some tickers missing yield');
+  setText('aDGR',     bDGR != null ? '+' + fn(bDGR, 1) + '% / yr' : '⚠ Some tickers missing DGR');
+}
+
+/* ═══════════════════════════════════════
+   REQUIRED FIELDS CHECK
+═══════════════════════════════════════ */
+function markFilled(inputId, chkId) {
+  const v = document.getElementById(inputId).value.trim();
+  const el = document.getElementById(inputId);
+  el.classList.toggle('filled', v !== '');
+  const chk = document.getElementById(chkId);
+  chk.innerHTML = v !== '' ? '<span class="filled-badge">✓ set</span>' : '';
+}
+
+function tryCalc() {
+  const pg  = document.getElementById('rPG').value.trim();
+  const tg  = document.getElementById('rTG').value.trim();
+  const yr  = document.getElementById('rYR').value.trim();
+  const btn  = document.getElementById('calcBtn');
+  const hint = document.getElementById('calcHint');
+  const missing = [];
+  if (!pg) missing.push('Price Appreciation Rate');
+  if (!tg) missing.push('Income Target');
+  if (!yr) missing.push('Years');
+  if (missing.length) {
+    btn.disabled = true;
+    hint.textContent = 'Still needed: ' + missing.join(', ');
+  } else {
+    btn.disabled = false;
+    hint.textContent = '';
+    runProj();  // auto-calculate as soon as all filled
+  }
+}
+
+/* ═══════════════════════════════════════
    PROJECTION MODEL
-   Exact match to the spreadsheet:
-   - Monthly simulation
-   - Price and DPS use (1+r)^(1/12) monthly compounding
-   - Dividend = prev_shares × current_DPS
-   - Shares += contribution / price each month
-   - DRIP: shares += dividend / price each month
-   - Starting: shares = (StartingPortfolio + first_contribution) / StartingSharePrice
-══════════════════════════════════ */
-function sched(){clearTimeout(schedTimer);schedTimer=setTimeout(runProj,80);}
+   — Monthly simulation, exact spreadsheet logic
+   — Starting from $0 (fresh start)
+   — Monthly contribution = budget (all-in each month)
+   — Price/DPS: (1+r)^(1/12) monthly compounding
+   — Dividend = prev_shares × current_DPS
+   — DRIP: reinvest div into new shares
+═══════════════════════════════════════ */
+function runProj() {
+  const MO  = getBudget();
+  const gP  = parseFloat(document.getElementById('rPG').value) / 100;
+  const TGT = parseFloat(document.getElementById('rTG').value);
+  const YRS = parseInt(document.getElementById('rYR').value);
+  const DR  = document.getElementById('rDR').checked;
 
-function runProj(){
-  const SV  = parseFloat(document.getElementById('pV').value)   || 0;   // Starting portfolio $
-  const YLD = parseFloat(document.getElementById('pYld').value) / 100 || 0.0255; // Annual yield
-  const SP  = parseFloat(document.getElementById('pSP').value)  || 100; // Starting share price
-  const MO  = parseFloat(document.getElementById('rMo').value)  || 0;   // Monthly contribution $
-  const LS  = document.getElementById('rLS').checked;                    // Lump Sum mode
-  const gP  = parseFloat(document.getElementById('rPG').value)  / 100;  // Annual price growth
-  const gD  = parseFloat(document.getElementById('rDG').value)  / 100;  // Annual DGR
-  const YRS = parseInt(document.getElementById('rYr').value)    || 30;
-  const TGT = parseFloat(document.getElementById('rTg').value)  || 60000;
+  if (!MO || isNaN(gP) || isNaN(TGT) || isNaN(YRS)) return;
 
-  // Monthly compounding factors — exact same as spreadsheet
-  const mPF = Math.pow(1 + gP, 1/12);  // monthly price factor
-  const mDF = Math.pow(1 + gD, 1/12);  // monthly dividend factor
+  // Blended portfolio stats
+  let wYld = 0, yldA = 0, wDGR = 0, dgrA = 0;
+  POS.forEach(p => {
+    const al = p.alloc || 0, yld = getEffYld(p);
+    if (yld != null)   { wYld += yld   * al; yldA += al; }
+    if (p.dgr != null) { wDGR += p.dgr * al; dgrA += al; }
+  });
+  const bYld = yldA > 0 ? wYld / yldA : 0.03;  // fallback 3%
+  const bDGR = dgrA > 0 ? wDGR / dgrA : 0.07;  // fallback 7%
 
-  // Month 0: initialize
-  let price = SP;
-  let dps   = SP * YLD / 12;  // starting monthly dividend per share
+  // Monthly compounding factors
+  const mPF = Math.pow(1 + gP,       1/12);  // price
+  const mDF = Math.pow(1 + bDGR/100, 1/12);  // DGR (bDGR in % terms from user)
 
-  // First purchase: Starting Portfolio + first month's contribution
-  const firstBuy = LS ? (SV + MO) : (SV + MO);
-  let sharesND = firstBuy / price;   // No-DRIP shares
-  let sharesDR = firstBuy / price;   // DRIP shares
+  // Normalize to $100 starting share price
+  const SP = 100;
+  let price    = SP;
+  let dps      = SP * bYld / 12;  // monthly div per share at start
 
-  let cumDivND = 0;   // cumulative dividend paid (No DRIP)
-  let cumDivDR = 0;   // cumulative dividend paid (DRIP)
-  let cumInv   = firstBuy;
+  // Month 0: buy first batch with first contribution
+  let sharesND = MO / price;
+  let sharesDR = MO / price;
+  let cumInv   = MO;
 
   const MONTHS = YRS * 12;
   const curY   = new Date().getFullYear();
-  const yearRows = [];
-  let beYear = null;
+  const rows   = [];
+  let beYear   = null;
 
-  // Month-by-month simulation
   for (let m = 1; m <= MONTHS; m++) {
-    // Step 1: advance price and DPS (monthly compounding)
+    // 1. Price & DPS compound
     price *= mPF;
     dps   *= mDF;
 
-    // Step 2: dividends earned this month (previous shares × current DPS)
+    // 2. Dividends (previous shares × current DPS)
     const divND = sharesND * dps;
     const divDR = sharesDR * dps;
-    cumDivND += divND;
-    cumDivDR += divDR;
 
-    // Step 3: DRIP — reinvest dividends into new shares
+    // 3. DRIP reinvestment
     sharesDR += divDR / price;
 
-    // Step 4: regular contribution — buy new shares (monthly mode or skip if lump sum)
-    if (!LS) {
-      sharesND += MO / price;
-      sharesDR += MO / price;
-      cumInv   += MO;
-    }
-    // (Lump sum already added at month 0; no further contributions)
+    // 4. Monthly contribution buys new shares
+    sharesND += MO / price;
+    sharesDR += MO / price;
+    cumInv   += MO;
 
-    // Step 5: record end-of-year snapshots (every 12th month)
+    // 5. Snapshot at year end
     if (m % 12 === 0) {
-      const yr     = m / 12;
-      const valND  = sharesND * price;
-      const valDR  = sharesDR * price;
-      // Projected annual income = current monthly income × 12
-      const annND  = sharesND * dps * 12;
-      const annDR  = sharesDR * dps * 12;
+      const yr    = m / 12;
+      const valND = sharesND * price;
+      const valDR = sharesDR * price;
+      const annND = sharesND * dps * 12;
+      const annDR = sharesDR * dps * 12;
 
       if (!beYear && Math.max(annND, annDR) >= TGT) beYear = curY + yr;
 
-      yearRows.push({
-        year: curY + yr,
-        price,
-        yield: dps * 12 / price,
-        dps,           // monthly
-        sharesND,
-        sharesDR,
-        moIncND: divND,  // last monthly payout of this year
-        moIncDR: divDR,
-        annND,
-        annDR,
-        valND,
-        valDR,
-        cumInv,
-      });
+      rows.push({ year: curY + yr, price, dps, sharesND, sharesDR,
+                  moIncND: divND, moIncDR: divDR, annND, annDR,
+                  valND, valDR, contribYr: MO * 12, cumInv });
     }
   }
 
-  // Update highlights
-  const last = yearRows[yearRows.length - 1];
-  setText('hBE',     beYear ? String(beYear) : '> '+(curY+YRS));
-  setText('hFI_DR',  '$'+f0(last.annDR));
-  setText('hFI_ND',  '$'+f0(last.annND));
-  setText('hFV',     '$'+f0(last.valDR));
+  // Show results
+  const last = rows[rows.length - 1];
+  setText('hBE',     beYear ? String(beYear) : '> ' + (curY + YRS));
+  setText('hFI_DR',  '$' + f0(last.annDR));
+  setText('hFI_ND',  '$' + f0(last.annND));
+  document.getElementById('notReady').style.display = 'none';
+  document.getElementById('resultsWrap').style.display = 'block';
 
-  drawChart(yearRows, TGT);
-  drawProjTable(yearRows, TGT);
+  drawChart(rows, TGT);
+  drawTable(rows, TGT);
 }
 
-/* ══════════════════════════════════
-   CHART
-══════════════════════════════════ */
-function drawChart(rows, tgt){
-  const ctx=document.getElementById('pjCvs').getContext('2d');
-  if(pjChart)pjChart.destroy();
-  pjChart=new Chart(ctx,{
-    type:'line',
-    data:{
-      labels:rows.map(r=>r.year),
-      datasets:[
-        {label:'Annual Income (DRIP)',    data:rows.map(r=>Math.round(r.annDR)),
-         borderColor:'#2d6a4f',backgroundColor:'rgba(45,106,79,.07)',fill:true,yAxisID:'yI',tension:.4,pointRadius:0,borderWidth:2.5},
-        {label:'Annual Income (No DRIP)', data:rows.map(r=>Math.round(r.annND)),
-         borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.06)',fill:true,yAxisID:'yI',tension:.4,pointRadius:0,borderWidth:2.5},
-        {label:'Portfolio Value (DRIP)',  data:rows.map(r=>Math.round(r.valDR)),
-         borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.04)',fill:false,yAxisID:'yV',tension:.4,pointRadius:0,borderWidth:1.5,borderDash:[3,3]},
-        {label:'Retirement Target',       data:rows.map(()=>tgt),
-         borderColor:'#d97706',borderDash:[6,4],yAxisID:'yI',pointRadius:0,borderWidth:1.5,fill:false},
+function drawChart(rows, tgt) {
+  const ctx = document.getElementById('pjCvs').getContext('2d');
+  if (pjChart) pjChart.destroy();
+  pjChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: rows.map(r => r.year),
+      datasets: [
+        { label: 'Annual Income (DRIP)',    data: rows.map(r => Math.round(r.annDR)), borderColor: '#2d6a4f', backgroundColor: 'rgba(45,106,79,.07)',  fill: true,  yAxisID: 'yI', tension: .4, pointRadius: 0, borderWidth: 2.5 },
+        { label: 'Annual Income (No DRIP)', data: rows.map(r => Math.round(r.annND)), borderColor: '#1d4ed8', backgroundColor: 'rgba(29,78,216,.06)',  fill: true,  yAxisID: 'yI', tension: .4, pointRadius: 0, borderWidth: 2.5 },
+        { label: 'Portfolio Value (DRIP)',  data: rows.map(r => Math.round(r.valDR)), borderColor: '#9333ea', backgroundColor: 'transparent',           fill: false, yAxisID: 'yV', tension: .4, pointRadius: 0, borderWidth: 1.5, borderDash: [4,3] },
+        { label: 'Retirement Target',       data: rows.map(() => tgt),                borderColor: '#b45309', borderDash: [6,4],                         fill: false, yAxisID: 'yI', pointRadius: 0, borderWidth: 1.5 },
       ]
     },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      interaction:{mode:'index',intersect:false},
-      plugins:{
-        legend:{labels:{color:'#465240',font:{size:12,family:'Plus Jakarta Sans',weight:'600'},boxWidth:12,padding:16,usePointStyle:true,pointStyleWidth:10}},
-        tooltip:{backgroundColor:'#fff',borderColor:'#dde3d8',borderWidth:1.5,titleColor:'#1a2118',bodyColor:'#465240',padding:11,
-          titleFont:{family:'Plus Jakarta Sans',size:12,weight:'700'},bodyFont:{family:'Plus Jakarta Sans',size:11},
-          callbacks:{label:c=>` ${c.dataset.label}: $${c.raw.toLocaleString()}`}}
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#46523f', font: { size: 12, family: 'Plus Jakarta Sans', weight: '600' }, boxWidth: 12, padding: 16, usePointStyle: true, pointStyleWidth: 10 } },
+        tooltip: { backgroundColor: '#fff', borderColor: '#dde3d8', borderWidth: 1.5, titleColor: '#1a2118', bodyColor: '#46523f', padding: 11,
+          titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: '700' }, bodyFont: { family: 'Plus Jakarta Sans', size: 11 },
+          callbacks: { label: c => ` ${c.dataset.label}: $${c.raw.toLocaleString()}` } }
       },
-      scales:{
-        x:{ticks:{color:'#87958f',font:{size:11}},grid:{color:'rgba(0,0,0,.04)'}},
-        yI:{type:'linear',position:'left',
-          title:{display:true,text:'Annual Income / Target',color:'#87958f',font:{size:11}},
-          ticks:{color:'#2d6a4f',font:{size:11},callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K')},
-          grid:{color:'rgba(0,0,0,.04)'}},
-        yV:{type:'linear',position:'right',
-          title:{display:true,text:'Portfolio Value',color:'#87958f',font:{size:11}},
-          ticks:{color:'#7c3aed',font:{size:11},callback:v=>'$'+(v>=1e6?(v/1e6).toFixed(1)+'M':(v/1e3).toFixed(0)+'K')},
-          grid:{display:false}}
+      scales: {
+        x:  { ticks: { color: '#879580', font: { size: 11 } }, grid: { color: 'rgba(0,0,0,.04)' } },
+        yI: { type: 'linear', position: 'left',  title: { display: true, text: 'Annual Income', color: '#879580', font: { size: 11 } },
+              ticks: { color: '#2d6a4f', font: { size: 11 }, callback: v => '$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K') }, grid: { color: 'rgba(0,0,0,.04)' } },
+        yV: { type: 'linear', position: 'right', title: { display: true, text: 'Portfolio Value', color: '#879580', font: { size: 11 } },
+              ticks: { color: '#9333ea', font: { size: 11 }, callback: v => '$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K') }, grid: { display: false } }
       }
     }
   });
 }
 
-/* ══════════════════════════════════
-   PROJECTION TABLE
-══════════════════════════════════ */
-function drawProjTable(rows, tgt){
-  document.getElementById('pjBody').innerHTML=rows.map(r=>{
-    const hit=Math.max(r.annDR,r.annND)>=tgt;
-    return `<tr class="${hit?'hit-row':''}">
-      <td style="font-family:var(--mono);font-weight:700">${r.year}${hit?' 🎯':''}</td>
+function drawTable(rows, tgt) {
+  document.getElementById('pjBody').innerHTML = rows.map(r => {
+    const hit = Math.max(r.annDR, r.annND) >= tgt;
+    return `<tr class="${hit ? 'hit-row' : ''}">
+      <td style="font-family:var(--mono);font-weight:700">${r.year}${hit ? ' 🎯' : ''}</td>
       <td class="r">$${fn(r.price)}</td>
-      <td class="r">${(r.yield*100).toFixed(2)}%</td>
-      <td class="r">$${fn(r.dps,4)}</td>
-      <td class="r nodrip-col">$${fn(r.sharesND,2)}</td>
-      <td class="r drip-col">$${fn(r.sharesDR,2)}</td>
+      <td class="r">$${fn(r.dps, 4)}</td>
+      <td class="r nodrip-col">${fn(r.sharesND, 2)}</td>
+      <td class="r drip-col">${fn(r.sharesDR, 2)}</td>
       <td class="r nodrip-col">$${fn(r.moIncND)}</td>
       <td class="r drip-col">$${fn(r.moIncDR)}</td>
       <td class="r nodrip-col">$${f0(r.annND)}</td>
       <td class="r drip-col">$${f0(r.annDR)}</td>
       <td class="r nodrip-col">$${f0(r.valND)}</td>
       <td class="r drip-col">$${f0(r.valDR)}</td>
+      <td class="r" style="color:var(--accent);font-weight:600">$${f0(r.contribYr)}</td>
       <td class="r" style="color:var(--muted)">$${f0(r.cumInv)}</td>
     </tr>`;
   }).join('');
 }
 
-/* ══════════════════════════════════
+/* ═══════════════════════════════════════
    UTILS
-══════════════════════════════════ */
-function showErr(msg){
-  const b=document.getElementById('errBanner');
-  document.getElementById('errMsg').textContent=msg;
-  b.style.display='flex';
-}
-function hideErr(){document.getElementById('errBanner').style.display='none';}
-function fn(n,d=2){return n==null||isNaN(n)?'—':n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});}
-function f0(n){return n==null||isNaN(n)?'—':Math.round(n).toLocaleString('en-US');}
-function fp(n){return n==null?'—':(n*100).toFixed(2)+'%';}
-function trunc(s,n){return s.length>n?s.slice(0,n)+'…':s;}
-function setText(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
-function showEl(id){const e=document.getElementById(id);if(e)e.style.display='flex';}
-function hideEl(id){const e=document.getElementById(id);if(e)e.style.display='none';}
+═══════════════════════════════════════ */
+function fn(n, d=2)  { return n == null || isNaN(n) ? '—' : n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+function f0(n)       { return n == null || isNaN(n) ? '—' : Math.round(n).toLocaleString('en-US'); }
+function trunc(s, n) { return s.length > n ? s.slice(0, n) + '…' : s; }
+function setText(id, v) { const e = document.getElementById(id); if (e) e.textContent = v; }
+function showEl(id)  { const e = document.getElementById(id); if (e) e.style.display = 'flex'; }
+function hideEl(id)  { const e = document.getElementById(id); if (e) e.style.display = 'none'; }
 </script>
 </body>
 </html>
